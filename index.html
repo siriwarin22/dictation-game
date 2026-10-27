@@ -1223,19 +1223,27 @@ function speak(text,lang,slow){
   a.onended=done; a.onerror=()=>{done();speakTTS(text,lang,slow)};
   a.play().then(()=>speechToast(false)).catch(()=>{done();speakTTS(text,lang,slow)});
 }
+let speakSeq=0;
 function speakTTS(text,lang,slow){
   if(!("speechSynthesis" in window))return;
-  try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}
-  const u=new SpeechSynthesisUtterance(text);
-  const v=voiceFor(lang); if(v){try{u.voice=v}catch(e){}}
-  u.lang=v?v.lang:LOCALE[lang]; const r=VOICE.rate[lang]||0.9; u.rate=slow?Math.max(0.4,r*0.62):r;
-  const b=$("#speak"); if(b)b.classList.add("playing");
-  const done=()=>{const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
-  SFX.duck(true);
-  let started=false; u.onstart=()=>{started=true;speechToast(false)};
-  u.onend=u.onerror=done;
-  speechSynthesis.speak(u);
-  setTimeout(()=>{if(!started){done();speechToast(true,speechSynthesis.speaking)}},4000);   // only tells the player; changes nothing
+  const seq=++speakSeq;
+  let busy=false; try{busy=speechSynthesis.speaking||speechSynthesis.pending; if(busy)speechSynthesis.cancel()}catch(e){}
+  const go=()=>{
+    if(seq!==speakSeq) return;              // a newer word was asked for meanwhile
+    const u=new SpeechSynthesisUtterance(text);
+    const v=voiceFor(lang); if(v){try{u.voice=v}catch(e){}}
+    u.lang=v?v.lang:LOCALE[lang]; const r=VOICE.rate[lang]||0.9; u.rate=slow?Math.max(0.4,r*0.62):r;
+    const b=$("#speak"); if(b)b.classList.add("playing");
+    const done=()=>{if(seq!==speakSeq)return;const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
+    SFX.duck(true);
+    let started=false; u.onstart=()=>{started=true;speechToast(false)};
+    u.onend=u.onerror=done;
+    speechSynthesis.speak(u);
+    // only the latest word may raise the "stuck" note; a word cut short by the next one is fine
+    setTimeout(()=>{if(!started&&seq===speakSeq){done();speechToast(true,speechSynthesis.speaking)}},4000);
+  };
+  // Chrome/Brave drop an utterance queued right after cancel(); give the engine a beat first
+  if(busy) setTimeout(go,150); else go();
 }
 function voicePanel(lang){
   const vs=voicesFor(lang), cur=voiceFor(lang);
