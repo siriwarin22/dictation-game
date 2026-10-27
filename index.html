@@ -1032,6 +1032,7 @@ let speakTimer=null;
 function speak(text,lang,slow){
   if(!("speechSynthesis" in window))return;
   speechSynthesis.cancel(); clearTimeout(speakTimer);
+  try{speechSynthesis.resume()}catch(e){}   // Chrome can leave the queue stuck in "paused"
   // a short gap after cancel() stops Chrome/Safari from clipping or garbling the next word
   speakTimer=setTimeout(()=>{
     const u=new SpeechSynthesisUtterance(text);
