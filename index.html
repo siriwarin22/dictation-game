@@ -1016,25 +1016,13 @@ function saveProgress(play){
 let voices=[];
 function loadVoices(){try{voices=speechSynthesis.getVoices()||[]}catch(e){voices=[]}}
 if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=()=>{loadVoices();if(S.view==="play"&&!$("#answer")?.value)render()}}
-const VOICE={pref:store.get("dict.voice",{th:"",en:""}),rate:store.get("dict.rate",{th:0.85,en:0.85})};
+const VOICE={pref:store.get("dict.voice",{th:"",en:""}),rate:store.get("dict.rate",{th:0.9,en:0.9})};
 const LOCALE={th:"th-TH",en:"en-US"};
-// devices ship several voices per language; the robotic ones are usually the compact defaults,
-// so rank the natural / enhanced / network voices first
-function voiceScore(v,lang){
-  const l=(v.lang||"").replace("_","-").toLowerCase(), n=v.name||"";
-  let sc=0;
-  if(l===LOCALE[lang].toLowerCase()) sc+=4;
-  if(/premium|enhanced|natural|neural|siri/i.test(n)) sc+=6;
-  // voices on the device always work; network voices ("Google …") only work in Chrome itself
-  if(v.localService===false) sc-=8;
-  if(/kanya|narisa|samantha|ava|allison|aria|jenny/i.test(n)) sc+=2;
-  if(/compact|eloquence|espeak|grandma|grandpa|bad news|bells|bubbles|whisper|zarvox|trinoids|jester|organ|superstar|cellos/i.test(n)) sc-=10;
-  return sc;
-}
-function voicesFor(lang){const p=LANG[lang].voice;return voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p)).sort((a,b)=>voiceScore(b,lang)-voiceScore(a,lang))}
-// voices that stayed silent on this browser are skipped from then on
-const BADV=new Set(store.get("dict.badvoices",[]));
-function voiceFor(lang){const vs=voicesFor(lang).filter(v=>!BADV.has(v.voiceURI));return vs.find(v=>v.voiceURI===VOICE.pref[lang])||vs[0]}
+// Back to the original, known-good choice: the browser's own first voice for the language,
+// unless the player picked one by hand. (Ranking voices picked network voices that stay silent outside Chrome.)
+if(store.get("dict.voicev",0)<2){try{localStorage.removeItem("dict.badvoices");localStorage.removeItem("dict.voice")}catch(e){}store.set("dict.voicev",2);VOICE.pref={th:"",en:""}}
+function voicesFor(lang){const p=LANG[lang].voice;return voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p))}
+function voiceFor(lang){const vs=voicesFor(lang);return vs.find(v=>v.voiceURI===VOICE.pref[lang])||vs[0]}
 function hasVoice(lang){return REC.ids.size>0 || ("speechSynthesis" in window && !!voiceFor(lang))}
 /* Recorded words (audio/<id>.m4a, listed in audio/manifest.json) play first;
    the browser's own voice is the fallback. Recordings come from make-audio.sh. */
@@ -1052,26 +1040,19 @@ function speak(text,lang,slow){
   a.onended=done; a.onerror=()=>{done();speakTTS(text,lang,slow)};
   a.play().then(()=>speechToast(false)).catch(()=>{done();speakTTS(text,lang,slow)});
 }
-let speakTimer=null;
-function speakTTS(text,lang,slow,retry=0){
+function speakTTS(text,lang,slow){
   if(!("speechSynthesis" in window))return;
-  speechSynthesis.cancel(); clearTimeout(speakTimer);
-  try{speechSynthesis.resume()}catch(e){}   // Chrome can leave the queue stuck in "paused"
-  // a short gap after cancel() stops Chrome/Safari from clipping or garbling the next word
-  speakTimer=setTimeout(()=>{
-    const u=new SpeechSynthesisUtterance(text);
-    const v=voiceFor(lang); u.lang=v?v.lang:LOCALE[lang]; try{if(v)u.voice=v}catch(e){}
-    const r=VOICE.rate[lang]||0.85; u.rate=slow?Math.max(0.4,r*0.65):r; u.pitch=1; u.volume=1;
-    const b=$("#speak"); if(b)b.classList.add("playing");
-    SFX.duck(true);
-    let started=false; u.onstart=()=>{started=true;speechToast(false)};
-    u.onend=u.onerror=()=>{const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
-    speechSynthesis.speak(u);
-    // a voice can accept the call and stay silent (network voices outside Chrome, blocked voices):
-    // drop it and try the next one; only give up after a few
-    setTimeout(()=>{if(started)return;SFX.duck(false);const b=$("#speak");if(b)b.classList.remove("playing");
-      if(v&&retry<3){BADV.add(v.voiceURI);store.set("dict.badvoices",[...BADV]);speakTTS(text,lang,slow,retry+1)} else speechToast(true)},2500);
-  },90);
+  try{speechSynthesis.cancel()}catch(e){}
+  const u=new SpeechSynthesisUtterance(text);
+  const v=voiceFor(lang); if(v){try{u.voice=v}catch(e){}}
+  u.lang=v?v.lang:LOCALE[lang]; const r=VOICE.rate[lang]||0.9; u.rate=slow?Math.max(0.4,r*0.62):r;
+  const b=$("#speak"); if(b)b.classList.add("playing");
+  const done=()=>{const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
+  SFX.duck(true);
+  let started=false; u.onstart=()=>{started=true;speechToast(false)};
+  u.onend=u.onerror=done;
+  speechSynthesis.speak(u);
+  setTimeout(()=>{if(!started){done();speechToast(true)}},4000);   // only tells the player; changes nothing
 }
 function voicePanel(lang){
   const vs=voicesFor(lang), cur=voiceFor(lang);
@@ -1081,10 +1062,10 @@ function voicePanel(lang){
       ${vs.length?`<label for="voice-sel">เสียง</label>
       <select id="voice-sel">${vs.map(v=>`<option value="${esc(v.voiceURI)}" ${cur&&v.voiceURI===cur.voiceURI?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select>`
       :`<p class="muted" style="margin:0">อุปกรณ์นี้ไม่มีเสียงอ่าน${lang==="th"?"ภาษาไทย":"ภาษาอังกฤษ"}</p>`}
-      <label for="rate">ความเร็ว <b id="rate-val">${(VOICE.rate[lang]||0.85).toFixed(2)}×</b></label>
-      <input id="rate" type="range" min="0.5" max="1.2" step="0.05" value="${VOICE.rate[lang]||0.85}">
+      <label for="rate">ความเร็ว <b id="rate-val">${(VOICE.rate[lang]||0.9).toFixed(2)}×</b></label>
+      <input id="rate" type="range" min="0.5" max="1.2" step="0.05" value="${VOICE.rate[lang]||0.9}">
       <button class="btn" id="voice-test" type="button">${icon.speaker} ลองฟัง</button>
-      <p class="muted" style="margin:0;font-size:.82rem">ถ้าเสียงเพี้ยน ลองเปลี่ยนเสียงที่มีคำว่า Enhanced, Premium หรือ Google จะชัดกว่า</p>
+      <p class="muted" style="margin:0;font-size:.82rem">ถ้าไม่มีเสียงหรือเสียงเพี้ยน ลองเปลี่ยนเสียงแล้วกด "ลองฟัง"</p>
     </div>
   </details>`;
 }
