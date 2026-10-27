@@ -1032,7 +1032,7 @@ fetch("audio/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then
 function speak(text,lang,slow){
   const id=wordId(lang,text);
   if(!REC.ids.has(id)) return speakTTS(text,lang,slow);
-  try{speechSynthesis.cancel()}catch(e){}
+  try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}
   const a=REC.el||(REC.el=new Audio()); a.pause();
   a.src="audio/"+id+".m4a"; a.preservesPitch=true; a.playbackRate=slow?0.7:1;
   const b=$("#speak"); if(b)b.classList.add("playing"); SFX.duck(true);
@@ -1081,7 +1081,7 @@ function speechToast(show,stuck){
     <button class="btn" type="button" id="toast-x">ปิด</button>`;
   t.hidden=false; $("#toast-x").onclick=()=>{t.hidden=true};
 }
-function hush(){try{speechSynthesis.cancel()}catch(e){}try{REC.el&&REC.el.pause()}catch(e){}}
+function hush(){try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}try{REC.el&&REC.el.pause()}catch(e){}}
 
 /* ============================================================
    GAME SOUNDS — original chiptune-ish cues synthesised with Web Audio
@@ -1502,7 +1502,10 @@ const LIVECFG={lang:"th",stage:0,count:10,dur:20};
 function bindLive(){
   const jf=$("#join-form");
   if(jf){
-    const unlock=()=>{SFX.unlock();try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}};  // iOS only speaks after a tap
+    // iPhone/iPad only speak after a tap, so prime speech there with a real (silent) word.
+    // Never on desktop: an empty utterance leaves Chromium's speech on macOS stuck "speaking" until the browser restarts.
+    const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+    const unlock=()=>{SFX.unlock();if(IOS){try{const u=new SpeechSynthesisUtterance("a");u.volume=0;speechSynthesis.speak(u)}catch(e){}}};
     jf.onsubmit=e=>{e.preventDefault();const pin=($("#live-pin").value||"").replace(/\D/g,""),name=normName($("#live-name").value);
       if(pin.length!==6){$("#join-err").textContent="รหัส PIN ต้องเป็นตัวเลข 6 หลัก";return}
       if(!name){$("#join-err").textContent="ใส่ชื่อก่อนเข้าห้อง";return}
