@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ทดสอบเสียง</title>
+<style>
+  :root{--bg:#FCFDFB;--fg:#22305A;--soft:#5B6788;--line:#C9DCEB;--ok:#2E9E7A;--bad:#E2574C}
+  @media (prefers-color-scheme:dark){:root{--bg:#1C2826;--fg:#ECEFE4;--soft:#A9B7AF;--line:#30473F;--ok:#69D1B0;--bad:#FF877C}}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,sans-serif;padding:16px}
+  main{max-width:640px;margin:0 auto;display:grid;gap:14px}
+  h1{font-size:1.4rem;margin:0}
+  section{border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+  h2{font-size:1rem;margin:0}
+  button{font:inherit;font-weight:600;border:2px solid var(--fg);background:transparent;color:var(--fg);border-radius:10px;padding:6px 12px;cursor:pointer;justify-self:start}
+  .r{font-family:ui-monospace,Menlo,monospace;font-size:.85rem;white-space:pre-wrap;color:var(--soft);overflow-wrap:anywhere}
+  .ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+  ul{margin:0;padding-left:18px;font-size:.9rem}
+  li button{padding:2px 8px;font-size:.8rem;margin-left:6px}
+</style>
+</head>
+<body>
+<main>
+  <h1>ทดสอบเสียง</h1>
+  <p style="margin:0;color:var(--soft)">กดปุ่มทีละข้อ ฟังว่ามีเสียงไหม แล้วแคปหน้าจอทั้งหน้าส่งให้ Claude</p>
+
+  <section><h2>1. ข้อมูลเบราว์เซอร์</h2><div class="r" id="info"></div></section>
+
+  <section><h2>2. เสียงบี๊บ (Web Audio)</h2>
+    <button id="b-beep">เล่นบี๊บ</button><div class="r" id="r-beep">ยังไม่ได้กด</div></section>
+
+  <section><h2>3. เสียงอ่านคำ "สวัสดี" แบบไม่เลือกเสียง</h2>
+    <button id="b-say">อ่าน</button><div class="r" id="r-say">ยังไม่ได้กด</div></section>
+
+  <section><h2>4. เสียงอ่านทีละเสียง (ภาษาไทยและอังกฤษ)</h2>
+    <div class="r" id="r-count"></div><ul id="voices"></ul></section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const log=(id,html)=>{$(id).innerHTML=html};
+function info(){
+  const v=("speechSynthesis" in window)?speechSynthesis.getVoices():[];
+  log("#info",[
+    "เบราว์เซอร์: "+navigator.userAgent,
+    "Brave: "+(navigator.brave?"ใช่":"ไม่ใช่"),
+    "มี speechSynthesis: "+(("speechSynthesis" in window)?"มี":"ไม่มี"),
+    "จำนวนเสียงทั้งหมด: "+v.length,
+    "เสียงไทย: "+v.filter(x=>/^th/i.test(x.lang)).map(x=>x.name+(x.localService?"":" [ออนไลน์]")).join(", ")||"เสียงไทย: ไม่มี"
+  ].join("\n"));
+  const list=v.filter(x=>/^(th|en)/i.test(x.lang));
+  log("#r-count","กดปุ่ม \"ลอง\" ข้างชื่อเสียง ถ้าได้ยินแปลว่าเสียงนั้นใช้ได้");
+  $("#voices").innerHTML=list.map((x,i)=>`<li>${x.name} (${x.lang})${x.localService?"":" [ออนไลน์]"}<button data-i="${i}">ลอง</button> <span id="v${i}"></span></li>`).join("")||"<li>ไม่มีเสียงไทยหรืออังกฤษ</li>";
+  document.querySelectorAll("#voices button").forEach(b=>b.onclick=()=>{
+    const x=list[+b.dataset.i]; say(/^th/i.test(x.lang)?"สวัสดีครับ":"Hello there",x,"#v"+b.dataset.i);
+  });
+}
+function say(text,voice,out){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="th-TH";
+  let started=false; const t0=performance.now();
+  log(out,"กำลังสั่งอ่าน…");
+  u.onstart=()=>{started=true;log(out,`<span class="ok">เริ่มพูดแล้ว</span> (${Math.round(performance.now()-t0)} ms)`)};
+  u.onend=()=>{log(out,(started?'<span class="ok">พูดจบ</span>':'<span class="bad">จบโดยไม่เริ่มพูด</span>'))};
+  u.onerror=e=>{log(out,`<span class="bad">error: ${e.error}</span>`)};
+  speechSynthesis.speak(u);
+  setTimeout(()=>{if(!started)log(out,'<span class="bad">ผ่านไป 4 วินาทียังไม่พูด</span> speaking='+speechSynthesis.speaking+' pending='+speechSynthesis.pending)},4000);
+}
+$("#b-beep").onclick=async()=>{
+  try{const C=window.AudioContext||window.webkitAudioContext;const c=new C();await c.resume();
+    const o=c.createOscillator(),g=c.createGain();g.gain.value=0.15;o.frequency.value=660;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.4);
+    log("#r-beep",`<span class="ok">สั่งเล่นแล้ว</span> สถานะ: ${c.state}`)}catch(e){log("#r-beep",'<span class="bad">error: '+e.message+'</span>')}
+};
+$("#b-say").onclick=()=>say("สวัสดีครับ",null,"#r-say");
+info(); if("speechSynthesis" in window) speechSynthesis.onvoiceschanged=info;
+</script>
+</body>
+</html>
