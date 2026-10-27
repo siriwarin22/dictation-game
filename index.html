@@ -1,0 +1,1732 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>สมุดตามคำบอก</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700&family=Anuphan:wght@400;500;600&display=swap">
+<style>
+/* Layout: a school exercise book — ruled lines, red margin, teacher's red-pen marks. Stages sit in a swipeable card carousel. */
+:root{
+  --paper:#FCFDFB; --paper-2:#F1F5F8; --ink:#22305A; --ink-soft:#5B6788;
+  --rule:#C9DCEB; --margin:#E2574C; --pencil:#F2B829; --mint:#3FA98A;
+  --card:#FFFFFF; --margin-soft:rgba(226,87,76,.5); --shadow:0 1px 0 rgba(34,48,90,.08),0 6px 18px -10px rgba(34,48,90,.25);
+  --f-display:"Mali","Anuphan",system-ui,sans-serif;
+  --f-body:"Anuphan",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1C2826; --paper-2:#22312E; --ink:#ECEFE4; --ink-soft:#A9B7AF;
+  --rule:#30473F; --margin:#FF877C; --pencil:#F6CF5C; --mint:#69D1B0;
+  --card:#25342F; --margin-soft:rgba(255,135,124,.5); --shadow:0 1px 0 rgba(0,0,0,.3),0 8px 20px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1C2826; --paper-2:#22312E; --ink:#ECEFE4; --ink-soft:#A9B7AF;
+  --rule:#30473F; --margin:#FF877C; --pencil:#F6CF5C; --mint:#69D1B0;
+  --card:#25342F; --margin-soft:rgba(255,135,124,.5); --shadow:0 1px 0 rgba(0,0,0,.3),0 8px 20px -12px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+.wrap{max-width:760px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--pencil);outline-offset:2px;border-radius:8px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.3;margin:0}
+
+/* header */
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-block:20px 12px;border-bottom:2px solid var(--rule)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:1.6rem}
+.brand small{display:block;font-family:var(--f-body);font-size:.8rem;color:var(--ink-soft);font-weight:500;letter-spacing:.02em}
+.menu{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.burger{display:none;width:44px;height:44px;border-radius:12px;border:2px solid var(--rule);background:var(--card);color:var(--ink);place-items:center;padding:0;-webkit-tap-highlight-color:transparent}
+.burger svg{width:22px;height:22px;display:block}
+.burger .ic-close{display:none}
+header.open .burger .ic-open{display:none}
+header.open .burger .ic-close{display:block}
+.burger:focus{outline:none}
+.burger:focus-visible{border-color:var(--ink)}
+.lang.menu-lang{display:none}
+.themebtn{width:40px;height:40px;border-radius:50%;border:2px solid var(--rule);background:var(--card);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0;font-weight:600}
+.themebtn svg{width:20px;height:20px;flex:none}
+.themebtn .tl{display:none}
+@media (max-width:600px){
+  .burger{display:grid}
+  .menu{display:none;width:100%;flex-direction:column;align-items:stretch;gap:12px;padding-block:6px 4px}
+  header.open .menu{display:flex}
+  .menu .chip{align-self:flex-start}
+  .menu nav{flex-direction:column;border-radius:14px}
+  .menu nav button{text-align:left;padding:10px 14px;border-radius:10px}
+  .lang.menu-lang{display:inline-flex;align-self:flex-start}
+  .themebtn{width:auto;height:auto;border-radius:12px;padding:8px 14px;align-self:flex-start}
+  .themebtn .tl{display:inline}
+  .home-lang .lang{display:none}
+}
+nav{display:flex;gap:4px;background:var(--paper-2);padding:4px;border-radius:999px}
+nav button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:600;font-size:.95rem;color:var(--ink-soft)}
+nav button[aria-current="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.chip{border:2px solid var(--rule);background:var(--card);border-radius:999px;padding:0 12px 0 6px;display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:600;max-width:14em}
+.chip .av{width:26px;height:26px;border-radius:50%;background:var(--pencil);color:#22305A;display:grid;place-items:center;font-size:.85rem;flex:none}
+.chip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:2.2}
+
+main{padding-block:20px}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.muted{color:var(--ink-soft)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.spacer{flex:1}
+.notice{font-size:.85rem;padding:10px 14px;border-radius:10px;background:var(--paper-2);border-left:4px solid var(--pencil);margin-bottom:14px}
+
+/* name page: the cover label of the exercise book */
+.cover{max-width:460px;margin:24px auto 0;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:28px 24px;display:grid;gap:16px;text-align:center}
+.cover .label{border:2px solid var(--ink);border-radius:12px;padding:16px 18px 12px;display:grid;gap:4px;text-align:left}
+.cover .label span{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+/* px line-height: Mali stacks Thai tone marks ~1.5em above the baseline and inputs clip anything taller */
+.cover input{font-family:var(--f-display);font-size:1.6rem;line-height:64px;height:64px;border:0;border-bottom:2px dashed var(--rule);background:transparent;color:var(--ink);padding:0 2px;width:100%}
+.cover input:focus{outline:none;border-bottom-color:var(--pencil)}
+.cover .row{justify-content:center}
+.players{display:grid;gap:6px;justify-items:center}
+.pchip{border:2px solid var(--rule);background:var(--paper-2);border-radius:99px;padding:0 14px;font-family:var(--f-display);font-weight:600;line-height:2.2}
+.pchip:hover{border-color:var(--ink)}
+.cover .err{color:var(--margin);font-size:.85rem;min-height:1.3em}
+
+/* language switch */
+.lang{display:inline-flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.lang button{border:0;background:transparent;padding:6px 16px;font-family:var(--f-display);font-weight:700}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+/* points + next badge strip */
+.purse{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:12px 16px;margin-top:16px}
+.purse img,.purse svg{width:64px;height:64px;object-fit:contain}
+.purse .big{font-family:var(--f-display);font-weight:700;font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.4}
+.bar{height:10px;border-radius:99px;background:var(--paper-2);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--pencil);border-radius:99px}
+
+/* stage ring: portrait cards on a slowly turning 3D cylinder; cards off to the side blur and fade */
+.ring-wrap{--cw:min(200px,50vw);--ch:calc(var(--cw) * 1.55);position:relative;margin-top:6px;height:calc(var(--ch) + 56px);perspective:900px;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent)}
+.ring{position:absolute;left:50%;top:24px;width:var(--cw);height:var(--ch);margin-left:calc(var(--cw) / -2);transform-style:preserve-3d;transition:transform 1s cubic-bezier(.45,.05,.25,1)}
+.ring.dragging,.ring.instant{transition:none}
+.card3d{position:absolute;inset:0;transform-style:preserve-3d;cursor:pointer}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;transition:filter .8s,opacity .8s}
+.card3d.side .face{filter:blur(1.5px) saturate(.7) brightness(1.06)}
+.card3d.far .face{filter:blur(3px);opacity:.25}
+/* card art: fixed colours, it is a printed object and reads the same in both themes */
+.scard{background:var(--c);color:#22305A;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.06),0 18px 30px -16px rgba(34,48,90,.5);
+  background-image:linear-gradient(to right,transparent 22px,rgba(226,87,76,.55) 22px 24px,transparent 24px),repeating-linear-gradient(transparent 0 25px,rgba(34,48,90,.13) 25px 26px);background-position:0 0,0 46%}
+.scard .tag{position:absolute;left:32px;top:14px;font-family:var(--f-body);font-weight:700;font-size:.72rem;letter-spacing:.12em;background:#22305A;color:#fff;padding:0 8px;border-radius:6px;line-height:1.8}
+.scard .lv{position:absolute;right:14px;top:4px;font-family:var(--f-display);font-weight:700;font-size:calc(var(--cw) * .42);line-height:1.15;color:#22305A}
+.scard .ttl{position:absolute;left:32px;right:12px;bottom:46px;font-family:var(--f-display);font-weight:700;font-size:calc(var(--cw) * .1);line-height:1.5;text-wrap:balance}
+.scard .word{position:absolute;left:30px;top:44%;font-family:var(--f-display);font-weight:600;font-size:calc(var(--cw) * .085);line-height:2;color:#E2574C;transform:rotate(-5deg);background:rgba(255,255,255,.7);padding:0 8px;border-radius:6px;max-width:calc(100% - 44px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scard .dots6{position:absolute;left:32px;bottom:18px;display:flex;gap:4px}
+.scard .dots6 i{width:8px;height:8px;border-radius:50%;background:rgba(34,48,90,.22)}
+.scard .dots6 i.on{background:#22305A}
+.scard.locked{filter:grayscale(1)}
+.card3d.side .scard.locked{filter:grayscale(1) blur(1.5px) brightness(1.06)}
+.card3d.far .scard.locked{filter:grayscale(1) blur(3px)}
+.scard .lockpill{position:absolute;right:12px;bottom:14px;font-family:var(--f-body);font-weight:700;font-size:.72rem;background:#22305A;color:#fff;padding:0 9px;border-radius:99px;line-height:1.9;display:inline-flex;align-items:center;gap:4px}
+/* padlock */
+.lockic{width:1em;height:1em;flex:none;vertical-align:-.14em}
+.scard .biglock{position:absolute;left:50%;top:50%;width:calc(var(--cw) * .32);height:calc(var(--cw) * .32);margin:calc(var(--cw) * -.16) 0 0 calc(var(--cw) * -.16);border-radius:50%;background:#22305A;color:#fff;display:grid;place-items:center;box-shadow:0 6px 14px -6px rgba(0,0,0,.5)}
+.scard .biglock .lockic{width:46%;height:46%}
+.face.back .lockic{width:28px;height:28px;margin-top:4px}
+.lockline{display:inline-flex;align-items:center;gap:6px}
+.bwrap{position:relative;display:inline-grid;place-items:center}
+.bwrap .padlock{position:absolute;width:38%;height:38%;max-width:44px;max-height:44px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;box-shadow:var(--shadow)}
+.bwrap .padlock .lockic{width:50%;height:50%}
+.face.back{transform:rotateY(180deg);background-color:#22305A;color:#FCFDFB;display:grid;place-content:center;justify-items:center;
+  background-image:linear-gradient(to right,transparent 22px,#E2574C 22px 24px,transparent 24px)}
+.face.back .bnum{font-family:var(--f-display);font-weight:700;font-size:3.5rem;line-height:1.2}
+.face.back .blabel{font-family:var(--f-display);font-weight:600;letter-spacing:.06em;line-height:2}
+/* text under the ring follows the front card */
+.stage-info{text-align:center;display:grid;justify-items:center;gap:6px;min-height:170px}
+.stage-info h2{font-size:1.5rem}
+.stage-info .sub{color:var(--ink-soft);font-size:.92rem}
+.stage-info .bar{width:min(260px,80%)}
+.stage-info .start{width:min(260px,80%)}
+.fade-in{animation:fadein .5s ease both}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}}
+.lockline{font-size:.85rem;font-weight:600;color:var(--ink-soft)}
+.stars{letter-spacing:2px;color:var(--pencil);font-size:1.05rem}
+.stars .off{color:var(--rule)}
+.diff{display:flex;gap:3px}
+.diff i{width:7px;height:14px;border-radius:2px;background:var(--rule)}
+.diff i.on{background:var(--ink)}
+.start{width:100%;justify-content:center;font-size:1.1rem;padding:12px 16px;font-family:var(--f-display)}
+.arrow{width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);background:var(--card);display:grid;place-items:center;font-size:1.2rem;font-weight:700;z-index:2}
+.ring-ctl{display:flex;justify-content:center;align-items:center;gap:16px}
+.dots{display:flex;justify-content:center;gap:8px}
+.dots button{width:10px;height:10px;border-radius:50%;border:0;padding:0;background:var(--rule)}
+.dots button[aria-current="true"]{background:var(--ink);width:24px;border-radius:99px}
+
+/* notebook page */
+.page{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.page-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center;padding:14px 18px;border-bottom:2px solid var(--rule)}
+.lines{position:relative;padding:0 14px 0 64px;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px);background-size:100% 60px;background-position:0 59px}
+.lines::before{content:"";position:absolute;left:52px;top:0;bottom:0;border-left:2px solid var(--margin);opacity:.7}
+.line{min-height:60px;display:flex;align-items:center;gap:10px;position:relative}
+.line .n{position:absolute;left:-52px;width:40px;text-align:center;font-family:var(--f-display);color:var(--ink-soft);font-size:.95rem}
+.line.cur .n{color:var(--margin);font-weight:700}
+.line .written{font-family:var(--f-display);font-size:1.35rem;line-height:2.2;flex:1;min-width:0;overflow-wrap:anywhere}
+.line .blank{color:var(--ink-soft);opacity:.5}
+.mark{font-family:var(--f-display);font-weight:700;color:var(--margin);font-size:1.3rem;white-space:nowrap}
+.fix{font-family:var(--f-display);color:var(--margin);font-size:1.1rem;line-height:2.2;overflow-wrap:anywhere;min-width:0}
+.strike{text-decoration:line-through;text-decoration-color:var(--margin);text-decoration-thickness:2px}
+#answer{font-family:var(--f-display);font-size:1.45rem;line-height:58px;border:0;background:transparent;color:var(--ink);width:100%;height:58px;padding:0}
+#answer:focus{outline:none}
+#answer::placeholder{color:var(--ink-soft);opacity:.5}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 18px;border-top:2px solid var(--rule);background:var(--paper-2)}
+.btn{border:2px solid var(--ink);background:var(--card);border-radius:12px;padding:8px 16px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn svg{width:18px;height:18px}
+.speak{width:64px;height:64px;border-radius:50%;border:0;background:var(--pencil);color:#22305A;display:grid;place-items:center;box-shadow:var(--shadow)}
+.speak svg{width:30px;height:30px}
+.speak.playing{animation:pulse .9s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.07)}}
+.peek{font-family:var(--f-display);font-size:1.4rem;line-height:2;padding:0 12px;border-radius:10px;background:var(--paper-2)}
+
+/* voice settings */
+.voicecfg{border-bottom:2px solid var(--rule);background:var(--paper-2)}
+.voicecfg summary{cursor:pointer;padding:8px 18px;font-size:.88rem;font-weight:600;color:var(--ink-soft);line-height:1.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voicecfg .vbody{display:grid;gap:8px;padding:4px 18px 14px;max-width:440px}
+.voicecfg label{font-size:.85rem;font-weight:600}
+.voicecfg select{font:inherit;font-size:.9rem;padding:6px 8px;border-radius:10px;border:2px solid var(--rule);background:var(--card);color:var(--ink);max-width:100%}
+.voicecfg input[type=range]{width:100%;accent-color:var(--ink)}
+.voicecfg .btn{justify-self:start}
+
+/* results */
+.result{text-align:center;padding:24px 18px 8px;display:grid;gap:12px;justify-items:center}
+.circled{font-family:var(--f-display);font-weight:700;color:var(--margin);font-size:2.4rem;border:3px solid var(--margin);border-radius:50%;padding:10px 22px;transform:rotate(-6deg);font-variant-numeric:tabular-nums}
+.gain{font-family:var(--f-display);font-weight:700;font-size:1.2rem;color:var(--mint)}
+.unlocks{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+.unlocks figure{margin:0;display:grid;justify-items:center;gap:4px;font-family:var(--f-display);font-weight:600}
+.badge-reveal{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(.3) rotate(-20deg);opacity:0}to{transform:none;opacity:1}}
+.newstage{font-family:var(--f-display);font-weight:700;background:var(--pencil);color:#22305A;padding:2px 14px;border-radius:99px;line-height:2}
+
+/* badges */
+.bimg{object-fit:contain;display:block}
+.bimg.locked{filter:grayscale(1);opacity:.35}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,40%),1fr));gap:14px;margin-top:14px}
+.bcard{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 10px;display:grid;justify-items:center;gap:4px;text-align:center}
+.bcard .bn{font-family:var(--f-display);font-weight:600;font-size:1rem;line-height:1.6}
+.bcard .bl{font-size:.8rem;color:var(--ink-soft)}
+.bcard.locked .bn{color:var(--ink-soft)}
+
+/* answer rows (results + history) */
+.answers{border-top:2px solid var(--rule)}
+.ans{display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:10px;padding:6px 16px 10px 0;border-bottom:1px solid var(--rule);position:relative}
+.ans::before{content:"";position:absolute;left:48px;top:0;bottom:0;border-left:2px solid var(--margin-soft)}
+.ans .n{text-align:center;font-family:var(--f-display);color:var(--ink-soft);line-height:2.6}
+.ans .main{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px;padding-left:8px;min-width:0}
+.ans .written{font-family:var(--f-display);font-size:1.3rem;line-height:2.2;overflow-wrap:anywhere}
+.ans .blank{color:var(--ink-soft);opacity:.5}
+.ans .mark{line-height:2.2}
+.ans .meaning{grid-column:2 / 4;padding-left:8px;font-size:.88rem;color:var(--ink-soft);line-height:1.7}
+/* ranking + live */
+.room-in{font-family:var(--f-display);font-size:1.2rem;line-height:52px;height:52px;border:0;border-bottom:2px dashed var(--rule);background:transparent;color:var(--ink);width:100%;letter-spacing:.08em}
+.room-in:focus{outline:none;border-bottom-color:var(--pencil)}
+.rank{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.rank li{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px}
+.rank li.me{outline:2px solid var(--pencil)}
+.rank .pos{font-family:var(--f-display);font-weight:700;font-size:1.2rem;text-align:center;color:var(--ink-soft)}
+.rank .person{display:grid;min-width:0}
+.rank .nick{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.9}
+.rank .sub{font-size:.78rem;color:var(--ink-soft)}
+.rank .pts{font-family:var(--f-display);font-weight:700;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end;max-width:460px;margin:8px auto 0;padding-top:8px}
+.pod{display:grid;justify-items:center;gap:2px;text-align:center;min-width:0;animation:rise .7s cubic-bezier(.2,1.2,.4,1) both}
+.pod.p1{animation-delay:.5s}.pod.p2{animation-delay:.25s}
+.pod .pname{font-family:var(--f-display);font-weight:700;line-height:1.8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .ppts{font-size:.85rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.pod .block{width:100%;border-radius:12px 12px 0 0;display:grid;place-items:start center;padding-top:8px;color:#22305A}
+.pod .block b{font-family:var(--f-display);font-size:2rem;line-height:1.3}
+.pod.p1 .block{height:130px;background:#F2B829}.pod.p2 .block{height:96px;background:#C9D3DF}.pod.p3 .block{height:72px;background:#E8A77A}
+.pod.empty .block{background:var(--paper-2)}
+.pod.me .pname{color:var(--margin)}
+@keyframes rise{from{transform:translateY(40px);opacity:0}}
+.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+.lcard{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;display:grid;gap:8px;align-content:start}
+.lcard label{font-size:.85rem;font-weight:600}
+.lcard select{font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--rule);background:var(--card);color:var(--ink);max-width:100%}
+.lcard .err{color:var(--margin);font-size:.85rem;min-height:1.3em}
+.pin-in{font-family:var(--f-display);font-size:2rem;letter-spacing:.3em;text-align:center;line-height:64px;height:64px;border:2px solid var(--rule);border-radius:12px;background:var(--paper);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
+.name-in{font-family:var(--f-display);font-size:1.3rem;line-height:52px;height:52px;border:2px solid var(--rule);border-radius:12px;background:var(--paper);color:var(--ink);width:100%;padding:0 12px}
+.pin-in:focus,.name-in:focus{outline:none;border-color:var(--ink)}
+.lstage{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:24px 18px;display:grid;justify-items:center;gap:12px;text-align:center}
+.bigpin{font-family:var(--f-display);font-weight:700;font-size:clamp(3rem,14vw,5.5rem);letter-spacing:.06em;line-height:1.3;font-variant-numeric:tabular-nums}
+.joinurl{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;max-width:100%}
+.joinurl span{font-family:var(--f-body);font-weight:600;background:var(--paper-2);border-radius:8px;padding:4px 10px;overflow-wrap:anywhere;min-width:0}
+.pcount{font-size:1.05rem;margin:0}.pcount b{font-family:var(--f-display);font-size:1.6rem}
+.pchips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:640px}
+.pchips span{border:2px solid var(--rule);border-radius:99px;padding:0 12px;font-family:var(--f-display);font-weight:600;line-height:2;animation:pop .4s ease both}
+.ltimer{display:grid;justify-items:center;gap:6px;width:min(420px,100%)}
+.ltimer b{font-family:var(--f-display);font-size:3rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.ltimer .bar{width:100%;height:12px}
+.bigword{font-family:var(--f-display);font-weight:700;font-size:clamp(2rem,9vw,3.4rem);line-height:1.8;color:var(--margin);overflow-wrap:anywhere}
+.bigname{font-family:var(--f-display);font-weight:700;font-size:1.8rem;line-height:1.8;overflow-wrap:anywhere}
+.top5{list-style:none;margin:0;padding:0;display:grid;gap:6px;width:min(420px,100%)}
+.top5 li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--paper-2);border-radius:10px;padding:4px 12px;text-align:left}
+.top5 span{font-family:var(--f-display);font-weight:700;color:var(--ink-soft)}
+.top5 b{font-family:var(--f-display);line-height:1.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top5 em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.ansline{width:min(460px,100%);border-bottom:2px solid var(--rule)}
+#live-ans{font-family:var(--f-display);font-size:1.5rem;line-height:60px;height:60px;border:0;background:transparent;color:var(--ink);width:100%;text-align:center}
+#live-ans:focus{outline:none}
+.verdict{font-family:var(--f-display);font-weight:700;font-size:2.4rem;line-height:1.5;padding:0 24px;border-radius:16px}
+.verdict.ok{background:var(--mint);color:#fff}.verdict.no{background:var(--margin);color:#fff}
+.lstage .start{width:min(320px,100%)}
+
+/* history */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stat{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:10px 14px}
+.stat b{display:block;font-family:var(--f-display);font-size:1.4rem;font-variant-numeric:tabular-nums;line-height:1.5}
+.stat span{font-size:.8rem;color:var(--ink-soft)}
+.missed{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.missed span{background:var(--card);border:2px solid var(--margin-soft);border-radius:10px;padding:0 10px;font-family:var(--f-display);line-height:2}
+.missed small{color:var(--margin);font-family:var(--f-body);font-weight:600;margin-left:4px}
+.hist{display:grid;gap:10px;margin-top:10px}
+.hist details{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.hist summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px}
+.hist summary::-webkit-details-marker{display:none}
+.hist .sc{font-family:var(--f-display);font-weight:700;color:var(--margin);border:2px solid var(--margin);border-radius:50%;min-width:58px;text-align:center;line-height:2.2;font-variant-numeric:tabular-nums}
+.hist .what{min-width:0}
+.hist .what b{display:block;font-family:var(--f-display);line-height:1.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist .what span{font-size:.8rem;color:var(--ink-soft)}
+.hist .pt{font-family:var(--f-display);font-weight:700;color:var(--mint);white-space:nowrap}
+.hist details[open] summary{border-bottom:2px solid var(--rule)}
+h3.sec{margin-top:22px;font-size:1.1rem}
+.empty{padding:28px;text-align:center;border:2px dashed var(--rule);border-radius:var(--r);color:var(--ink-soft)}
+.seg{display:inline-flex;gap:4px;background:var(--paper-2);padding:4px;border-radius:10px}
+.seg button{border:0;background:transparent;padding:4px 12px;border-radius:8px;font-weight:600;font-size:.9rem;color:var(--ink-soft)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+
+@media (max-width:480px){
+  .brand h1{font-size:1.3rem}
+  .lines{padding-left:52px}.lines::before{left:42px}.line .n{left:-46px;width:36px}
+  .line .written,#answer{font-size:1.25rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="3" width="30" height="34" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><line x1="12" y1="3" x2="12" y2="37" stroke="var(--margin)" stroke-width="2"/><line x1="15" y1="14" x2="30" y2="14" stroke="var(--rule)" stroke-width="2"/><line x1="15" y1="21" x2="30" y2="21" stroke="var(--rule)" stroke-width="2"/><line x1="15" y1="28" x2="26" y2="28" stroke="var(--rule)" stroke-width="2"/></svg>
+      <h1>สมุดตามคำบอก<small>Thai &amp; English dictation</small></h1>
+    </div>
+    <button class="burger" id="burger" hidden aria-expanded="false" aria-controls="menu" aria-label="เปิดเมนู"><svg class="ic-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="ic-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    <div class="menu" id="menu" hidden>
+      <button class="chip" id="who" aria-label="เปลี่ยนผู้เล่น" title="เปลี่ยนผู้เล่น"><span class="av" id="who-av"></span><span class="nm" id="who-nm"></span></button>
+      <nav aria-label="เมนู">
+        <button id="nav-home" data-view="home" aria-current="true">ด่าน</button>
+        <button id="nav-badges" data-view="badges">แบดจ์</button>
+        <button id="nav-rank" data-view="rank" hidden>อันดับ</button>
+        <button id="nav-live" data-view="live" hidden>เล่นสด</button>
+        <button id="nav-history" data-view="history">ประวัติ</button>
+      </nav>
+      <button class="themebtn" id="theme-btn" type="button"></button>
+      <div class="lang menu-lang" role="group" aria-label="ภาษา">
+        <button id="mlang-th" data-lang="th">ไทย</button>
+        <button id="mlang-en" data-lang="en">English</button>
+      </div>
+    </div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script src="supabase.js"></script>
+<script>
+/* ============================================================
+   WORD BANK — 6 stages per language, 40 single words each, ป.5 upward.
+   Each round draws 10 words the player hasn't had yet (see drawWords).
+   One line per word:  word | meaning
+   ============================================================ */
+const BANK = {
+  th: [
+    {title:"ด่านคำพื้นฐาน", sub:"คำทั่วไประดับ ป.5", bank:`
+ประเทศ|ดินแดนที่มีรัฐบาลปกครอง · country
+กระเป๋า|ที่ใส่ของสำหรับพกพา · bag
+จักรยาน|รถสองล้อที่ใช้เท้าปั่น · bicycle
+ผลไม้|ส่วนของพืชที่กินได้ · fruit
+หน้าต่าง|ช่องที่ผนังให้แสงและลมเข้า · window
+ตลาดนัด|ตลาดที่มาตั้งขายเป็นวันๆ · open-air market
+ขนมปัง|อาหารทำจากแป้งนำไปอบ · bread
+ห้องสมุด|ห้องเก็บหนังสือให้ยืมอ่าน · library
+ดอกกุหลาบ|ดอกไม้มีหนาม กลิ่นหอม · rose
+ไข่เจียว|ไข่ตีแล้วทอดในน้ำมัน · Thai omelette
+โรงเรียน|สถานที่เรียนหนังสือ · school
+นาฬิกา|เครื่องบอกเวลา · clock
+ตู้เย็น|ตู้เก็บอาหารให้เย็น · refrigerator
+แว่นตา|เครื่องสวมช่วยให้มองเห็นชัด · glasses
+รองเท้า|เครื่องสวมเท้า · shoes
+ผ้าห่ม|ผ้าคลุมตัวเวลานอน · blanket
+หมอน|ที่หนุนศีรษะเวลานอน · pillow
+ช้อนส้อม|เครื่องมือตักและจิ้มอาหาร · spoon and fork
+ทุ่งนา|พื้นที่ปลูกข้าว · rice field
+ชาวนา|คนที่ทำนา · rice farmer
+ต้นมะม่วง|ต้นไม้ที่ให้ผลมะม่วง · mango tree
+แตงโม|ผลไม้เนื้อแดงฉ่ำน้ำ · watermelon
+สับปะรด|ผลไม้มีตาและจุก · pineapple
+มะพร้าว|ผลไม้มีกะลา ข้างในมีน้ำ · coconut
+ผีเสื้อ|แมลงปีกสีสวย · butterfly
+แมลงปอ|แมลงปีกใส บินเร็ว · dragonfly
+จระเข้|สัตว์เลื้อยคลานปากยาว · crocodile
+นกแก้ว|นกที่พูดเลียนเสียงคนได้ · parrot
+ปากกา|เครื่องเขียนที่ใช้หมึก · pen
+ยางลบ|ใช้ลบรอยดินสอ · eraser
+ไม้บรรทัด|ใช้ขีดเส้นตรงและวัดความยาว · ruler
+สมุด|กระดาษเย็บเป็นเล่มสำหรับเขียน · notebook
+กระดาน|แผ่นสำหรับเขียนหน้าห้องเรียน · board
+เพื่อนบ้าน|คนที่อยู่บ้านใกล้กัน · neighbor
+ตำรวจ|เจ้าหน้าที่ดูแลความสงบ · police
+ทหาร|ผู้ปกป้องประเทศ · soldier
+สวนสัตว์|สถานที่เลี้ยงสัตว์ให้คนชม · zoo
+ชายหาด|ริมทะเลที่เป็นทราย · beach
+ภูเขา|พื้นดินที่สูงขึ้นไปมาก · mountain
+น้ำตก|น้ำที่ไหลตกจากที่สูง · waterfall`},
+    {title:"ด่านคำควบกล้ำ", sub:"คำควบกล้ำและคำหลายพยางค์ ระดับ ป.6", bank:`
+สะพาน|ทางข้ามแม่น้ำหรือถนน · bridge
+ประชาชน|คนทั่วไปในประเทศ · citizens
+สุขภาพ|สภาพของร่างกายและจิตใจ · health
+ทะเลสาบ|แหล่งน้ำกว้างที่มีแผ่นดินล้อมรอบ · lake
+รถพยาบาล|รถรับส่งผู้ป่วย · ambulance
+ภูเขาไฟ|ภูเขาที่พ่นลาวาได้ · volcano
+ครอบครัว|พ่อ แม่ ลูก ที่อยู่ด้วยกัน · family
+อาหารกลางวัน|อาหารมื้อเที่ยง · lunch
+เครื่องบิน|ยานพาหนะที่บินได้ · airplane
+ไปรษณีย์|หน่วยงานรับส่งจดหมายและพัสดุ · post office
+กลางคืน|ช่วงเวลาที่ฟ้ามืด · night
+ขรุขระ|ไม่เรียบ เป็นหลุมเป็นบ่อ · bumpy
+คลื่น|น้ำที่ซัดมาเป็นลูกๆ · wave
+ปลาหมึก|สัตว์ทะเลมีหนวด · squid
+ครีบ|อวัยวะที่ปลาใช้ว่ายน้ำ · fin
+กลองยาว|เครื่องดนตรีไทยใช้ตี · long drum
+เพลง|เสียงร้องที่มีทำนอง · song
+ปลวก|แมลงที่กินไม้ · termite
+ขวด|ภาชนะใส่น้ำ ปากแคบ · bottle
+กล้วยไม้|ดอกไม้สวยมีหลายสี · orchid
+พริกไทย|เครื่องเทศรสเผ็ดร้อน · pepper
+ตะกร้า|ภาชนะสานสำหรับใส่ของ · basket
+กระดุม|ใช้ติดเสื้อให้ปิด · button
+แปรงสีฟัน|ใช้แปรงฟัน · toothbrush
+รั้ว|แนวกั้นรอบบ้าน · fence
+ความปลอดภัย|ภาวะที่ไม่มีอันตราย · safety
+ปลาทอง|ปลาสีส้มเลี้ยงในตู้ · goldfish
+ไฟจราจร|สัญญาณไฟบนถนน · traffic light
+ทางม้าลาย|ทางข้ามถนนลายขาวดำ · crosswalk
+สถานีรถไฟ|ที่ขึ้นลงรถไฟ · train station
+ขนมครก|ขนมไทยหยอดในหลุม · coconut pudding
+กรรไกร|เครื่องมือใช้ตัด · scissors
+กระจก|แผ่นใสหรือแผ่นสะท้อนเงา · glass, mirror
+หม้อหุงข้าว|เครื่องหุงข้าว · rice cooker
+คลอง|ทางน้ำที่ขุดขึ้น · canal
+ปริศนา|คำถามให้ทาย · riddle
+ผักกาด|ผักใบชนิดหนึ่ง · lettuce
+พระอาทิตย์|ดวงอาทิตย์ · sun
+ดวงจันทร์|ดวงไฟบนฟ้ายามค่ำคืน · moon
+ปลาเค็ม|ปลาหมักเกลือตากแห้ง · salted fish`},
+    {title:"ด่านคำยืม", sub:"คำยืมบาลี-สันสกฤต และตัวการันต์", bank:`
+ศาสนา|คำสอนที่คนนับถือและปฏิบัติตาม · religion
+กษัตริย์|พระเจ้าแผ่นดิน · king
+ศิลปะ|งานสร้างสรรค์ที่แสดงความงาม · art
+ภาพยนตร์|หนังที่ฉายบนจอ · movie
+วิทยาศาสตร์|วิชาที่ศึกษาธรรมชาติด้วยการทดลอง · science
+คณิตศาสตร์|วิชาว่าด้วยตัวเลขและการคำนวณ · mathematics
+สิ่งแวดล้อม|ทุกสิ่งที่อยู่รอบตัวเรา · environment
+ประวัติศาสตร์|วิชาว่าด้วยเรื่องราวในอดีต · history
+พิพิธภัณฑ์|สถานที่จัดแสดงของเก่าและความรู้ · museum
+อุณหภูมิ|ระดับความร้อนหรือเย็น · temperature
+โทรศัพท์|เครื่องมือสื่อสารทางไกล · telephone
+คอมพิวเตอร์|เครื่องประมวลผลข้อมูล · computer
+จันทร์|ดวงจันทร์ หรือวันจันทร์ · moon, Monday
+ศุกร์|วันที่หกของสัปดาห์ · Friday
+อาทิตย์|ดวงอาทิตย์ หรือวันอาทิตย์ · sun, Sunday
+สัตว์|สิ่งมีชีวิตที่เคลื่อนไหวได้ · animal
+ธรรมชาติ|สิ่งที่เกิดขึ้นเองตามธรรมดา · nature
+ภาษา|ถ้อยคำที่ใช้สื่อสาร · language
+ศึกษา|เล่าเรียน · to study
+วัฒนธรรม|วิถีชีวิตของกลุ่มคน · culture
+ประเพณี|สิ่งที่ทำสืบต่อกันมา · tradition
+ภูมิศาสตร์|วิชาว่าด้วยโลกและพื้นที่ · geography
+เศรษฐกิจ|เรื่องการเงินและการค้า · economy
+สุนัข|หมา · dog
+มนุษย์|คน · human
+ศัตรู|ฝ่ายตรงข้าม · enemy
+พยาบาล|ผู้ดูแลคนป่วย · nurse
+ทันตแพทย์|หมอฟัน · dentist
+ศีรษะ|หัว · head
+อักษร|ตัวหนังสือ · letter
+สมบัติ|ทรัพย์สินที่มีอยู่ · treasure
+บัณฑิต|ผู้เรียนจบปริญญา · graduate
+ราชการ|งานของรัฐ · civil service
+ประชาธิปไตย|การปกครองโดยประชาชน · democracy
+จักรวาล|ทุกสิ่งในอวกาศ · universe
+ดาราศาสตร์|วิชาว่าด้วยดวงดาว · astronomy
+เกษตรกร|คนทำการเกษตร · farmer
+อาจารย์|ผู้สั่งสอนวิชา · teacher, lecturer
+พฤกษศาสตร์|วิชาว่าด้วยพืช · botany
+ปรากฏการณ์|สิ่งที่เกิดขึ้นให้เห็น · phenomenon`},
+    {title:"ด่านคำที่มักเขียนผิด", sub:"คำที่คนส่วนใหญ่สะกดพลาด", bank:`
+กะทันหัน|ทันทีทันใด (ไม่ใช่ กระทันหัน) · suddenly
+สังเกต|ดูอย่างตั้งใจ (ไม่มี ุ ท้าย) · to observe
+อนุญาต|ยอมให้ทำ (ไม่มีสระ ิ ท้าย) · to allow
+บรรยากาศ|อากาศหรือความรู้สึกรอบตัว · atmosphere
+ปรากฏ|แสดงให้เห็น (สะกดด้วย ฏ) · to appear
+เกียรติ|ความยกย่อง ชื่อเสียง · honor
+ลายเซ็น|ชื่อที่เขียนรับรองเอง (ไม่มี ต์) · signature
+อัฒจันทร์|ที่นั่งชมเป็นขั้นบันได · grandstand
+โอกาส|จังหวะหรือช่องทางที่เหมาะ · opportunity
+ผลัดเปลี่ยน|สลับกันทำแทน · to take turns
+คุกกี้|ขนมอบกรอบ (ไม่มีไม้โท) · cookie
+ไอศกรีม|ของหวานเย็น (ไม่ใช่ ไอศครีม) · ice cream
+แกงกะหรี่|แกงสีเหลือง (ไม่ใช่ กระหรี่) · curry
+กะเพรา|ใบไม้กลิ่นหอมใส่ผัด (ไม่ใช่ กระเพรา) · holy basil
+แท็กซี่|รถรับจ้าง · taxi
+โควตา|จำนวนที่กำหนดไว้ · quota
+กระทะ|ภาชนะสำหรับผัดทอด · wok
+ทะเลาะ|โต้เถียงกัน · to quarrel
+อีเมล|จดหมายอิเล็กทรอนิกส์ (ไม่มี ์) · email
+เครื่องสำอาง|ของแต่งหน้า (ไม่มี ค์) · cosmetics
+ปิกนิก|ไปกินอาหารนอกบ้าน (ไม่ใช่ ปิคนิค) · picnic
+ช็อกโกแลต|ขนมรสหวานสีน้ำตาล · chocolate
+โน้ต|ตัวดนตรี หรือบันทึกสั้นๆ · note
+บิณฑบาต|พระรับอาหาร (ไม่มี ร) · alms round
+ประสบการณ์|สิ่งที่เคยพบมา (ไม่ใช่ ประสพ) · experience
+รสชาติ|รสของอาหาร (ไม่ใช่ รสชาด) · taste
+ปะการัง|สัตว์ทะเลรูปกิ่งไม้ · coral
+สาบสูญ|หายไปไม่พบอีก · to vanish
+หงุดหงิด|รำคาญใจ · annoyed
+ดื่มด่ำ|ซาบซึ้งเต็มที่ · to savor
+ผลลัพธ์|ผลที่ได้ (สะกดด้วย ธ์) · result
+อานิสงส์|ผลบุญ (ไม่ใช่ อานิสงฆ์) · merit
+กระเพาะ|อวัยวะย่อยอาหาร · stomach
+เซ็น|ลงชื่อ (ไม่มี ต์) · to sign
+ลูกเกด|องุ่นตากแห้ง (ไม่ใช่ ลูกเกตุ) · raisin
+ครองราชย์|เป็นกษัตริย์ (มี ย์) · to reign
+อุโมงค์|ทางลอดใต้ดิน · tunnel
+ผูกพัน|รักใคร่ไม่อยากจาก (ไม่มี ธ์) · attached
+สัญลักษณ์|เครื่องหมายแทนความหมาย · symbol
+เบรก|ห้ามล้อ (ไม่ใช่ เบรค) · brake`},
+    {title:"ด่านคำยาก ม.ต้น", sub:"คำที่ต้องระวังการสะกด", bank:`
+ปรัศนี|เครื่องหมายคำถาม ? · question mark
+อุปโภค|ใช้สอยสิ่งของ (ไม่ได้กิน) · to use
+บริโภค|กิน ดื่ม ใช้ · to consume
+ศักดิ์สิทธิ์|มีอำนาจที่น่าเคารพ · sacred
+พฤหัสบดี|วันที่ห้าของสัปดาห์ · Thursday
+ทรัพยากร|สิ่งมีค่าที่นำมาใช้ได้ · resources
+สัมภาษณ์|ถามตอบเพื่อเก็บข้อมูล · interview
+ประณีต|ละเอียดเรียบร้อย (ไม่ใช่ ปราณีต) · refined
+อิริยาบถ|ท่ายืน เดิน นั่ง นอน · posture
+ปฏิทิน|แผ่นบอกวันเดือนปี · calendar
+ปฏิบัติ|ลงมือทำ · to practice
+ปฏิเสธ|ไม่ยอมรับ · to refuse
+ปฏิกิริยา|การตอบสนอง · reaction
+อุบัติเหตุ|เหตุร้ายที่ไม่คาดคิด · accident
+สถานการณ์|เหตุการณ์ที่เป็นอยู่ · situation
+ทัศนคติ|ความคิดเห็นต่อสิ่งต่างๆ · attitude
+บุคลิกภาพ|ลักษณะเฉพาะตัว · personality
+ปรัชญา|วิชาว่าด้วยความรู้และความจริง · philosophy
+สัญญาณ|เครื่องหมายบอกให้รู้ · signal
+พยัญชนะ|ตัวอักษร ก ถึง ฮ · consonant
+วรรณยุกต์|เครื่องหมายเสียงสูงต่ำ · tone mark
+วิเคราะห์|แยกแยะพิจารณา · to analyze
+สังเคราะห์|รวมสร้างขึ้นใหม่ · to synthesize
+ทฤษฎี|หลักที่อธิบายเหตุผล · theory
+กฎหมาย|ข้อบังคับของรัฐ · law
+อธิษฐาน|ตั้งใจขอ · to make a wish
+พิสูจน์|ทำให้เห็นว่าจริง · to prove
+ไวยากรณ์|หลักภาษา · grammar
+ภาษิต|คำพูดสอนใจ · proverb
+อุตสาหกรรม|การผลิตสินค้าจำนวนมาก · industry
+ประสิทธิภาพ|ความสามารถทำได้ผลดี · efficiency
+พลังงาน|กำลังที่ใช้ทำงาน · energy
+สิทธิ|อำนาจอันชอบธรรม · right
+สมรรถภาพ|ความสามารถ · capability
+อนุรักษ์|รักษาไว้ไม่ให้สูญ · to conserve
+ไตร่ตรอง|คิดอย่างรอบคอบ · to ponder
+ถ่ายทอด|ส่งต่อ · to pass on, broadcast
+ศัพท์|คำ · vocabulary
+วิกฤต|ภาวะอันตรายร้ายแรง · crisis
+ภาวนา|ตั้งจิตสวดหรืออธิษฐาน · to pray`},
+    {title:"ด่านเซียนสะกด", sub:"คำยากที่ผู้ใหญ่ยังเขียนผิด", bank:`
+อนุสาวรีย์|สิ่งก่อสร้างเพื่อระลึกถึง · monument
+ทะนุถนอม|ดูแลรักษาอย่างดี (ไม่ใช่ ทนุถนอม) · to cherish
+ผาสุก|ความสุขสบาย (ไม่ใช่ ผาสุข) · well-being
+พิสดาร|แปลกกว่าปกติ หรือละเอียด · elaborate
+ดุลยพินิจ|การพิจารณาด้วยเหตุผล · discretion
+เบญจเพส|อายุ 25 ปี · age 25
+จลาจล|ความวุ่นวายไม่สงบ · riot
+ปรปักษ์|ฝ่ายตรงข้าม · adversary
+อิสรภาพ|ความเป็นอิสระ · freedom
+มัธยัสถ์|ประหยัด (สะกดด้วย สถ์) · thrifty
+พฤติกรรม|การกระทำ · behavior
+ปรองดอง|ประนีประนอมกัน · reconciliation
+อุปสรรค|สิ่งกีดขวาง · obstacle
+ทุพภิกขภัย|ภัยข้าวยากหมากแพง · famine
+อนุกรม|ลำดับที่ต่อเนื่องกัน · series
+กาลเทศะ|ความเหมาะสมกับเวลาและสถานที่ · propriety
+ภาพพจน์|ภาพที่เกิดขึ้นในใจ · image
+อัธยาศัย|นิสัยใจคอ · disposition
+ปฏิสัมพันธ์|การติดต่อสัมพันธ์กัน · interaction
+ประจักษ์|ปรากฏชัด · evident
+สังสรรค์|พบปะกันอย่างรื่นเริง · to socialize
+ปัจจัย|สิ่งที่เป็นเหตุ · factor
+อวัยวะ|ส่วนต่างๆ ของร่างกาย · organ
+อัศจรรย์|น่าประหลาดใจ · marvelous
+ทรมาน|ทำให้เจ็บปวด · to torture
+ทรราช|ผู้ปกครองที่โหดร้าย · tyrant
+บรรทัดฐาน|มาตรฐาน · norm
+กำเนิด|การเกิด · origin
+เกษียณ|ครบกำหนดออกจากงาน (ไม่ใช่ เกษียน) · to retire
+ปรนนิบัติ|ดูแลรับใช้ · to tend
+ทนายความ|ผู้ว่าความในศาล · lawyer
+พิพากษา|ตัดสินคดี · to judge
+มาตรการ|วิธีการที่กำหนดไว้ · measure
+ประนีประนอม|ยอมผ่อนปรนให้กัน · to compromise
+อนาถ|น่าสลดใจ · pitiful
+ฉะเชิงเทรา|ชื่อจังหวัดภาคตะวันออก · Chachoengsao
+นครศรีธรรมราช|ชื่อจังหวัดภาคใต้ · Nakhon Si Thammarat
+ลักษณนาม|คำบอกลักษณะของนาม · classifier
+โลกาภิวัตน์|กระแสโลกที่เชื่อมถึงกัน (ไม่ใช่ วัฒน์) · globalization
+จุลินทรีย์|สิ่งมีชีวิตเล็กมาก · microorganism`},
+  ],
+  en: [
+    {title:"Everyday words", sub:"Common words, grade 5", bank:`
+family|ครอบครัว
+kitchen|ห้องครัว
+orange|ส้ม, สีส้ม
+rabbit|กระต่าย
+window|หน้าต่าง
+garden|สวน
+yellow|สีเหลือง
+teacher|ครู
+monkey|ลิง
+pencil|ดินสอ
+chicken|ไก่
+sister|พี่สาว, น้องสาว
+brother|พี่ชาย, น้องชาย
+mother|แม่
+father|พ่อ
+morning|ตอนเช้า
+evening|ตอนเย็น
+flower|ดอกไม้
+water|น้ำ
+bread|ขนมปัง
+table|โต๊ะ
+chair|เก้าอี้
+school|โรงเรียน
+friend|เพื่อน
+happy|มีความสุข
+purple|สีม่วง
+tiger|เสือ
+turtle|เต่า
+banana|กล้วย
+lemon|มะนาว
+button|กระดุม
+basket|ตะกร้า
+pocket|กระเป๋าเสื้อ
+ticket|ตั๋ว
+doctor|หมอ
+farmer|ชาวนา
+rainbow|รุ้ง
+island|เกาะ (ตัว s ไม่ออกเสียง)
+summer|ฤดูร้อน
+winter|ฤดูหนาว`},
+    {title:"Longer words", sub:"Two and three syllables", bank:`
+weather|สภาพอากาศ
+breakfast|อาหารเช้า
+birthday|วันเกิด
+holiday|วันหยุด
+library|ห้องสมุด
+hospital|โรงพยาบาล
+vegetable|ผัก
+homework|การบ้าน
+umbrella|ร่ม
+elephant|ช้าง
+afternoon|ตอนบ่าย
+yesterday|เมื่อวาน
+tomorrow|พรุ่งนี้ (m ตัวเดียว rr)
+Saturday|วันเสาร์
+Thursday|วันพฤหัสบดี
+dinosaur|ไดโนเสาร์
+butterfly|ผีเสื้อ
+strawberry|สตรอว์เบอร์รี
+potato|มันฝรั่ง
+tomato|มะเขือเทศ
+sandwich|แซนด์วิช
+bathroom|ห้องน้ำ
+bedroom|ห้องนอน
+neighbor|เพื่อนบ้าน
+country|ประเทศ
+village|หมู่บ้าน
+mountain|ภูเขา
+river|แม่น้ำ
+airport|สนามบิน
+bicycle|จักรยาน
+computer|คอมพิวเตอร์
+picture|รูปภาพ
+question|คำถาม
+answer|คำตอบ (ตัว w ไม่ออกเสียง)
+thirsty|กระหายน้ำ
+hungry|หิว
+careful|ระมัดระวัง (l ตัวเดียว)
+quickly|อย่างรวดเร็ว
+quiet|เงียบ
+light|แสง, เบา`},
+    {title:"School words", sub:"Words from lessons and stories", bank:`
+important|สำคัญ
+different|แตกต่าง
+dangerous|อันตราย
+interesting|น่าสนใจ
+temperature|อุณหภูมิ
+adventure|การผจญภัย
+environment|สิ่งแวดล้อม
+character|ตัวละคร, นิสัย
+beginning|จุดเริ่มต้น (nn)
+delicious|อร่อย
+experiment|การทดลอง
+celebrate|เฉลิมฉลอง
+festival|เทศกาล
+dictionary|พจนานุกรม
+information|ข้อมูล
+education|การศึกษา
+discover|ค้นพบ
+imagine|จินตนาการ
+remember|จำได้
+surprise|ความประหลาดใจ
+journey|การเดินทาง
+scientist|นักวิทยาศาสตร์
+together|ด้วยกัน
+message|ข้อความ
+minute|นาที
+season|ฤดูกาล
+signal|สัญญาณ
+skeleton|โครงกระดูก
+triangle|สามเหลี่ยม
+telescope|กล้องโทรทรรศน์
+volcano|ภูเขาไฟ
+vacation|วันหยุดพักผ่อน
+uniform|เครื่องแบบ
+treasure|สมบัติ
+pollution|มลพิษ
+planet|ดาวเคราะห์
+ocean|มหาสมุทร
+medicine|ยา
+machine|เครื่องจักร
+language|ภาษา`},
+    {title:"Tricky spelling", sub:"Silent letters and double letters", bank:`
+Wednesday|วันพุธ (ตัว d ไม่ออกเสียง)
+February|เดือนกุมภาพันธ์ (มี r หลัง b)
+necessary|จำเป็น (c ตัวเดียว ss)
+separate|แยกกัน (sep-a-rate)
+definitely|แน่นอน (de-fin-ite-ly)
+restaurant|ร้านอาหาร
+beautiful|สวยงาม
+government|รัฐบาล (มี n ก่อน m)
+knowledge|ความรู้ (ตัว k ไม่ออกเสียง)
+exercise|การออกกำลังกาย, แบบฝึกหัด
+believe|เชื่อ (ie)
+receive|ได้รับ (ei หลัง c)
+because|เพราะว่า
+tongue|ลิ้น
+listen|ฟัง (ตัว t ไม่ออกเสียง)
+castle|ปราสาท (ตัว t ไม่ออกเสียง)
+climb|ปีน (ตัว b ไม่ออกเสียง)
+thumb|นิ้วโป้ง (ตัว b ไม่ออกเสียง)
+knife|มีด (ตัว k ไม่ออกเสียง)
+knee|เข่า (ตัว k ไม่ออกเสียง)
+wrong|ผิด (ตัว w ไม่ออกเสียง)
+write|เขียน (ตัว w ไม่ออกเสียง)
+hour|ชั่วโมง (ตัว h ไม่ออกเสียง)
+honest|ซื่อสัตย์ (ตัว h ไม่ออกเสียง)
+calendar|ปฏิทิน (ลงท้าย ar)
+address|ที่อยู่ (dd และ ss)
+disappear|หายไป (s ตัวเดียว pp)
+until|จนกระทั่ง (l ตัวเดียว)
+truly|อย่างแท้จริง (ไม่มี e)
+argument|การโต้เถียง (ไม่มี e หลัง u)
+business|ธุรกิจ
+chocolate|ช็อกโกแลต
+lightning|ฟ้าแลบ (ไม่มี e)
+science|วิทยาศาสตร์ (sc)
+scissors|กรรไกร
+sword|ดาบ (ตัว w ไม่ออกเสียง)
+foreign|ต่างประเทศ
+height|ความสูง
+laugh|หัวเราะ (gh ออกเสียง f)
+piece|ชิ้น (ie)`},
+    {title:"Hard words", sub:"Double letters and silent sounds", bank:`
+accommodate|รองรับ, ให้ที่พัก (cc และ mm)
+embarrass|ทำให้อาย (rr และ ss)
+rhythm|จังหวะ (ไม่มีสระ a e i o u)
+conscience|มโนธรรม, จิตสำนึก
+occasionally|เป็นครั้งคราว (cc แต่ s ตัวเดียว)
+mischievous|ซุกซน (ไม่มี i หลัง v)
+pronunciation|การออกเสียง (nun ไม่ใช่ noun)
+guarantee|การรับประกัน
+millennium|สหัสวรรษ (ll และ nn)
+questionnaire|แบบสอบถาม (nn)
+recommend|แนะนำ (c ตัวเดียว mm)
+committee|คณะกรรมการ (mm tt ee)
+possession|การครอบครอง (ss ss)
+occurrence|การเกิดขึ้น (cc rr)
+privilege|สิทธิพิเศษ
+independent|เป็นอิสระ (ลงท้าย ent)
+maintenance|การบำรุงรักษา
+parliament|รัฐสภา
+schedule|ตารางเวลา
+vacuum|สุญญากาศ, เครื่องดูดฝุ่น (uu)
+weird|แปลก (ei)
+seize|ยึด (ei)
+harass|คุกคาม (r ตัวเดียว ss)
+acquaintance|คนรู้จัก
+apparent|ชัดเจน (pp)
+cemetery|สุสาน (ลงท้าย ery)
+colleague|เพื่อนร่วมงาน
+exaggerate|พูดเกินจริง (gg)
+existence|การมีอยู่ (ลงท้าย ence)
+fluorescent|เรืองแสง
+gauge|มาตรวัด
+immediately|ทันที
+leisure|เวลาว่าง
+noticeable|สังเกตได้ (eable)
+persistent|ไม่ลดละ (ลงท้าย ent)
+playwright|นักเขียนบทละคร
+receipt|ใบเสร็จ (ตัว p ไม่ออกเสียง)
+sincerely|ด้วยความจริงใจ
+threshold|ธรณีประตู (h ตัวเดียว)
+license|ใบอนุญาต`},
+    {title:"Spelling master", sub:"Words even adults misspell", bank:`
+onomatopoeia|คำเลียนเสียง
+conscientious|มีความรับผิดชอบ ขยัน
+bureaucracy|ระบบราชการ
+entrepreneur|ผู้ประกอบการ
+chrysanthemum|ดอกเบญจมาศ
+Mediterranean|ทะเลเมดิเตอร์เรเนียน (t ตัวเดียว rr)
+hierarchy|ลำดับชั้น
+silhouette|ภาพเงา
+pharaoh|ฟาโรห์ กษัตริย์อียิปต์
+surveillance|การเฝ้าระวัง (ll)
+psychology|จิตวิทยา (ตัว p ไม่ออกเสียง)
+pneumonia|ปอดบวม (ตัว p ไม่ออกเสียง)
+bourgeois|ชนชั้นกลาง
+connoisseur|ผู้เชี่ยวชาญ
+liaison|การประสานงาน
+renaissance|ยุคฟื้นฟูศิลปวิทยา
+reminiscence|ความทรงจำ
+miscellaneous|เบ็ดเตล็ด
+idiosyncrasy|ลักษณะเฉพาะตัว (ลงท้าย sy)
+unnecessary|ไม่จำเป็น (nn, c ตัวเดียว, ss)
+supersede|แทนที่ (ลงท้าย sede)
+handkerchief|ผ้าเช็ดหน้า
+rhinoceros|แรด
+archaeology|โบราณคดี
+ophthalmologist|จักษุแพทย์ (phth)
+sacrilegious|ลบหลู่สิ่งศักดิ์สิทธิ์
+dilemma|ภาวะลำบากใจ (mm)
+fuchsia|สีบานเย็น
+minuscule|เล็กมาก (minu ไม่ใช่ mini)
+chauffeur|คนขับรถส่วนตัว
+camouflage|การพรางตัว
+lieutenant|ร้อยโท
+colonel|พันเอก (อ่านว่า เคอร์เนิล)
+mnemonic|เคล็ดช่วยจำ (ตัว m แรกไม่ออกเสียง)
+pseudonym|นามแฝง (ตัว p ไม่ออกเสียง)
+phenomenon|ปรากฏการณ์
+anonymous|นิรนาม
+cappuccino|คาปูชิโน (pp และ cc)
+acquiesce|ยินยอม
+kaleidoscope|กล้องสลับลาย`},
+  ]
+};
+const ROUND = 10;   // words per round
+// parse the bank into LEVELS[lang][i].items (words) and MEAN[word]
+const MEAN = {};
+const LEVELS = Object.fromEntries(Object.entries(BANK).map(([lang,stages])=>[lang,stages.map(st=>({
+  title:st.title, sub:st.sub,
+  items:st.bank.trim().split("\n").map(line=>{const [w,m]=line.split("|").map(x=>x.trim());MEAN[w]=m||"";return w})
+}))]));
+const LOCK=`<svg class="lockic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 10.5V7.8a4.5 4.5 0 0 1 9 0v2.7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11.5" rx="3" fill="currentColor"/><circle cx="12" cy="15" r="1.7" fill="var(--keyhole,#22305A)"/><rect x="11.1" y="15.5" width="1.8" height="3" rx=".9" fill="var(--keyhole,#22305A)"/></svg>`;
+const lockedArt=(b,size)=>`<span class="bwrap">${badgeArt(b,size,false)}<span class="padlock" style="--keyhole:var(--ink)">${LOCK}</span></span>`;
+const LANG = {th:{label:"ไทย",voice:"th"}, en:{label:"English",voice:"en"}};
+const PTS = 20;                                   // points per correct word
+const STAGE_AT = [0,100,240,420,640,900];         // language points needed to open each stage
+
+/* ============================================================
+   BADGES — unlocked by total points (both languages).
+   `img` null → drawn placeholder until the artwork arrives.
+   ============================================================ */
+const BADGES = [
+  {id:"b1", name:"มั่วแบบมีหลักการ",      at:100,  img:"badges/b1-guess.webp"},
+  {id:"b2", name:"สมองโหลดไม่ทัน",        at:300,  img:"badges/b2-loading.webp"},
+  {id:"b3", name:"ภาษาไทยเวอร์ชันตัวเอง",  at:600,  img:"badges/b3-myversion.webp"},
+  {id:"b4", name:"นิ้วติดเทอร์โบ",          at:1000, img:"badges/b4-turbo.webp"},
+  {id:"b5", name:"บุญเก่าล้วนๆ",           at:1500, img:"badges/b5-merit.webp"},
+  {id:"b6", name:"ชีเสิร์ฟเกิน",            at:2000, img:"badges/b6-serve.webp"},
+];
+
+function badgeArt(b, size, earned, cls=""){
+  const lk=earned?"":"locked";
+  if(b.img) return `<img class="bimg ${lk} ${cls}" src="${b.img}" width="${size}" height="${size}" alt="${esc(b.name)}" loading="lazy">`;
+  // placeholder sticker (cute face) for artwork not supplied yet
+  return `<svg class="bimg ${lk} ${cls}" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="${esc(b.name)}">
+    <rect x="8" y="8" width="84" height="84" rx="26" fill="#FFF6D6" stroke="#E2574C" stroke-width="4"/>
+    <ellipse cx="38" cy="46" rx="4" ry="5" fill="#E2574C"/><ellipse cx="62" cy="46" rx="4" ry="5" fill="#E2574C"/>
+    <ellipse cx="30" cy="56" rx="5" ry="3" fill="#FF7B9C" opacity=".5"/><ellipse cx="70" cy="56" rx="5" ry="3" fill="#FF7B9C" opacity=".5"/>
+    <path d="M43 56 Q50 63 57 56" fill="none" stroke="#E2574C" stroke-width="3" stroke-linecap="round"/>
+    <text x="50" y="82" text-anchor="middle" font-family="Mali,sans-serif" font-size="9" font-weight="700" fill="#E2574C">เร็วๆ นี้</text></svg>`;
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+// Thai: drop spaces / zero-width chars, unify "ํา" → "ำ". English: case/space/final punctuation insensitive.
+function norm(s, lang){
+  s=(s||"").normalize("NFC").replace(/[​-‍﻿]/g,"").replace(/ํา/g,"ำ").trim();
+  if(lang==="th") return s.replace(/\s+/g,"").replace(/[.!?]+$/,"");
+  return s.toLowerCase().replace(/[’']/g,"'").replace(/\s+/g," ").replace(/[.!?]+$/,"");
+}
+const num=v=>Number.isFinite(+v)&&+v>0?Math.floor(+v):0;
+const icon={
+  speaker:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  slow:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17c2-6 8-8 12-5s2 7-2 6-2-5 2-5 6 3 6 4"/></svg>`,
+  eye:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`,
+};
+
+/* ============================================================
+   State: progress + history kept locally, mirrored to the viewer's private store
+   ============================================================ */
+/* Players: every nickname is its own save (points, stages, badges, history, word decks).
+   Typing a new name starts from zero; typing a name used before brings its save back. */
+const normName=n=>String(n||"").trim().replace(/\s+/g," ").slice(0,24);
+function pidOf(name){let h=0x811c9dc5;for(const ch of normName(name).toLowerCase()){h^=ch.codePointAt(0);h=Math.imul(h,0x01000193)>>>0}return "p_"+h.toString(16).padStart(8,"0")}
+const blankProg=()=>({points:{th:0,en:0},best:{},deck:{}});
+const players=()=>store.get("dict.players",{});   // pid -> name
+function loadPlayer(name){
+  const pid=pidOf(name);
+  // the save from before players existed belongs to whoever was playing then
+  const legacy=store.get("dict.v2",null);
+  if(legacy&&!store.get("dict.p."+pid,null)){store.set("dict.p."+pid,legacy);store.set("dict.h."+pid,store.get("dict.hist",[]));store.set("dict.legacyPid",pid)}
+  if(legacy){try{localStorage.removeItem("dict.v2");localStorage.removeItem("dict.hist")}catch(e){}}
+  S.pid=pid; S.nick=normName(name);
+  S.prog=Object.assign(blankProg(),store.get("dict.p."+pid,{}));
+  S.hist=store.get("dict.h."+pid,[]);
+  S.slide={th:null,en:null}; S.game=null;
+  const pl=players(); pl[pid]=S.nick; store.set("dict.players",pl);
+}
+function saveLocal(){store.set("dict.p."+S.pid,S.prog);store.set("dict.h."+S.pid,S.hist)}
+const S = {
+  view:store.get("dict.nickSet",false)?"home":"name",
+  lang:store.get("dict.lang","th"),
+  nick:"", pid:"", prog:blankProg(), hist:[],
+  slide:{th:null,en:null}, db:null, uid:null, dbNote:"", game:null,
+};
+if(store.get("dict.nickSet",false)&&store.get("dict.nick","")) loadPlayer(store.get("dict.nick",""));
+const key=(lang,i)=>lang+"-"+(i+1);
+const total=p=>num(p.points.th)+num(p.points.en);
+const stageOpen=(lang,i)=>num(S.prog.points[lang])>=STAGE_AT[i];
+const earnedBadges=t=>BADGES.filter(b=>t>=b.at);
+const nextBadge=t=>BADGES.find(b=>t<b.at);
+const starsFor=c=>c>=10?3:c>=8?2:c>=6?1:0;
+const starHTML=st=>`<span class="stars" aria-label="${st} ดาว">${"★".repeat(st)}<span class="off">${"★".repeat(3-st)}</span></span>`;
+
+// private per-viewer store: data/users/<id>/<pid> holds a player's save, data/users/<id>/<pid>/plays their rounds
+const progDoc=(pid=S.pid)=>S.db.collection("data/users/"+S.uid).doc(pid);
+const playsCol=(pid=S.pid)=>S.db.collection("data/users/"+S.uid+"/"+pid+"/plays");
+function mergeProgress(d){
+  if(!d) return;
+  const pts=d.points||d;
+  for(const l of ["th","en"]) S.prog.points[l]=Math.max(num(S.prog.points[l]),num(pts[l]));
+  if(d.best&&typeof d.best==="object") for(const [k,v] of Object.entries(d.best)) if(/^(th|en)-[1-6]$/.test(k)) S.prog.best[k]=Math.max(num(S.prog.best[k]),Math.min(10,num(v)));
+  // a deck from another device fills in stages this device hasn't started
+  if(d.deck&&typeof d.deck==="object"){S.prog.deck=S.prog.deck||{};for(const [k,v] of Object.entries(d.deck)) if(/^(th|en)-[1-6]$/.test(k)&&Array.isArray(v)&&!S.prog.deck[k]) S.prog.deck[k]=v.filter(w=>typeof w==="string").slice(0,200)}
+}
+function cleanPlay(r){
+  if(!r||typeof r!=="object"||!/^(th|en)$/.test(r.lang)||!Array.isArray(r.items)) return null;
+  return {id:String(r.id||""),at:String(r.at||""),lang:r.lang,i:Math.min(5,num(r.i)),correct:Math.min(10,num(r.correct)),n:Math.min(10,num(r.n))||10,gain:num(r.gain),
+    items:r.items.slice(0,10).map(x=>({w:String(x?.w||""),a:String(x?.a||"").slice(0,120),ok:!!x?.ok}))};
+}
+async function initShared(){
+  if(!window.claude?.use){S.dbNote="local";return}
+  try{
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!db||!user){S.dbNote="local";return}
+    const uid=await user.id(); if(!uid){S.dbNote="local";return}
+    S.db=db;S.uid=uid;
+    // players saved from other devices
+    const all=await db.collection("data/users/"+uid).get().catch(()=>null);
+    if(all){const pl=players();all.docs.forEach(d=>{const n=d.data()?.name;if(/^p_[0-9a-f]{8}$/.test(d.id)&&typeof n==="string"&&n)pl[d.id]=normName(n)});store.set("dict.players",pl)}
+    S.dbNote="shared";
+    if(S.pid) await syncPlayer();
+    if(S.view==="name") render(); else if(S.view!=="play") render();
+  }catch(e){S.dbNote="local"}
+}
+async function syncPlayer(){
+  if(!S.db||!S.pid) return;
+  const pid=S.pid, uid=S.uid, db=S.db;
+  const [pd,plays]=await Promise.all([progDoc(pid).get().catch(()=>null),playsCol(pid).orderBy("at","desc").limit(100).get().catch(()=>null)]);
+  // one-time: the save from before players existed goes to the player who owned the local legacy save (or the first one synced)
+  let legacy=[];
+  if(!store.get("dict.legacyDone",false)&&(!store.get("dict.legacyPid","")||store.get("dict.legacyPid","")===pid)){
+    const [lp,lplays,old]=await Promise.all([db.collection("data/users/"+uid).doc("progress").get().catch(()=>null),
+      db.collection("data/users/"+uid+"/progress/plays").orderBy("at","desc").limit(100).get().catch(()=>null),
+      db.collection("scores").doc(uid).get().catch(()=>null)]);
+    if(lp?.exists) mergeProgress(lp.data()); if(old?.exists) mergeProgress(old.data());
+    if(lplays) legacy=lplays.docs;
+    store.set("dict.legacyDone",true);
+  }
+  if(S.pid!==pid) return;   // player switched while loading
+  if(pd?.exists) mergeProgress(pd.data());
+  const have=new Set(S.hist.map(h=>h.id));
+  [...(plays?plays.docs:[]),...legacy].forEach(d=>{const r=cleanPlay({id:d.id,...(d.data()||{})});if(r&&!have.has(r.id)){S.hist.push(r);have.add(r.id)}});
+  S.hist.sort((a,b)=>b.at<a.at?-1:1); S.hist=S.hist.slice(0,100);
+  saveLocal(); saveProgress();
+}
+function saveProgress(play){
+  saveLocal();
+  if(!S.db||!S.uid||!S.pid) return;
+  const p=S.prog;
+  progDoc().set({name:S.nick,points:{th:num(p.points.th),en:num(p.points.en)},best:p.best,deck:p.deck||{},updatedAt:new Date().toISOString()}).catch(()=>{});
+  if(play) playsCol().doc(play.id).set(play).catch(()=>{});
+}
+
+/* ============================================================
+   Speech
+   ============================================================ */
+let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices()||[]}catch(e){voices=[]}}
+if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=()=>{loadVoices();if(S.view==="play"&&!$("#answer")?.value)render()}}
+const VOICE={pref:store.get("dict.voice",{th:"",en:""}),rate:store.get("dict.rate",{th:0.85,en:0.85})};
+const LOCALE={th:"th-TH",en:"en-US"};
+// devices ship several voices per language; the robotic ones are usually the compact defaults,
+// so rank the natural / enhanced / network voices first
+function voiceScore(v,lang){
+  const l=(v.lang||"").replace("_","-").toLowerCase(), n=v.name||"";
+  let sc=0;
+  if(l===LOCALE[lang].toLowerCase()) sc+=4;
+  if(/premium|enhanced|natural|neural|siri/i.test(n)) sc+=6;
+  if(/google/i.test(n)) sc+=4;
+  if(/kanya|narisa|samantha|ava|allison|aria|jenny/i.test(n)) sc+=2;
+  if(/compact|eloquence|espeak|grandma|grandpa|bad news|bells|bubbles|whisper|zarvox|trinoids|jester|organ|superstar|cellos/i.test(n)) sc-=10;
+  return sc;
+}
+function voicesFor(lang){const p=LANG[lang].voice;return voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p)).sort((a,b)=>voiceScore(b,lang)-voiceScore(a,lang))}
+function voiceFor(lang){const vs=voicesFor(lang);return vs.find(v=>v.voiceURI===VOICE.pref[lang])||vs[0]}
+function hasVoice(lang){return "speechSynthesis" in window && !!voiceFor(lang)}
+let speakTimer=null;
+function speak(text,lang,slow){
+  if(!("speechSynthesis" in window))return;
+  speechSynthesis.cancel(); clearTimeout(speakTimer);
+  // a short gap after cancel() stops Chrome/Safari from clipping or garbling the next word
+  speakTimer=setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    const v=voiceFor(lang); u.lang=v?v.lang:LOCALE[lang]; try{if(v)u.voice=v}catch(e){}
+    const r=VOICE.rate[lang]||0.85; u.rate=slow?Math.max(0.4,r*0.65):r; u.pitch=1; u.volume=1;
+    const b=$("#speak"); if(b)b.classList.add("playing");
+    u.onend=u.onerror=()=>{const b=$("#speak");if(b)b.classList.remove("playing")};
+    speechSynthesis.speak(u);
+  },90);
+}
+function voicePanel(lang){
+  const vs=voicesFor(lang), cur=voiceFor(lang);
+  return `<details class="voicecfg" id="voicecfg" ${S.voiceOpen?"open":""}>
+    <summary>ตั้งค่าเสียงอ่าน${cur?` · ${esc(cur.name)}`:""}</summary>
+    <div class="vbody">
+      ${vs.length?`<label for="voice-sel">เสียง</label>
+      <select id="voice-sel">${vs.map(v=>`<option value="${esc(v.voiceURI)}" ${cur&&v.voiceURI===cur.voiceURI?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select>`
+      :`<p class="muted" style="margin:0">อุปกรณ์นี้ไม่มีเสียงอ่าน${lang==="th"?"ภาษาไทย":"ภาษาอังกฤษ"}</p>`}
+      <label for="rate">ความเร็ว <b id="rate-val">${(VOICE.rate[lang]||0.85).toFixed(2)}×</b></label>
+      <input id="rate" type="range" min="0.5" max="1.2" step="0.05" value="${VOICE.rate[lang]||0.85}">
+      <button class="btn" id="voice-test" type="button">${icon.speaker} ลองฟัง</button>
+      <p class="muted" style="margin:0;font-size:.82rem">ถ้าเสียงเพี้ยน ลองเปลี่ยนเสียงที่มีคำว่า Enhanced, Premium หรือ Google จะชัดกว่า</p>
+    </div>
+  </details>`;
+}
+function hush(){try{speechSynthesis.cancel()}catch(e){}}
+
+/* ============================================================
+   ONLINE — shared ranking + Kahoot-style live rooms (Supabase).
+   Off inside claude.ai, whose pages cannot reach other servers.
+   ============================================================ */
+const SUPA={url:"https://fwbxemkdduezhwvgyzri.supabase.co",key:"sb_publishable_i6Uo-arConxLFEoOS4dFHw_3zJleqVI"};
+const QS=new URLSearchParams(location.search);
+const FAKE=QS.has("fake");   // test transport: two tabs on one machine talk without a server
+const IN_CLAUDE=!!window.claude||/claude|anthropic/i.test(location.hostname);
+// show the online menus on any site outside claude.ai; if the library is blocked, the pages say so
+const ONLINE=FAKE||!IN_CLAUDE;
+let sb=null;
+const sbc=()=>{if(!sb&&window.supabase&&!IN_CLAUDE)sb=window.supabase.createClient(SUPA.url,SUPA.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});return sb};
+function newId(){return (crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/-/g,"").slice(0,24)}
+function onlineId(){if(!S.prog.oid){S.prog.oid=newId();saveProgress()}return S.prog.oid}
+const cleanRoom=v=>String(v||"").toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,12);
+async function submitRound(g){
+  if(!ONLINE||!sbc()) return;
+  try{
+    const {error}=await sbc().from("rounds").insert({player_id:onlineId(),name:S.nick||"นักเรียน",room:S.prog.room||null,
+      lang:g.lang,stage:g.i+1,correct:g.correct,points:Math.min(200,g.gain)});
+    if(error) console.warn("rank:",error.message); else LB.at=0;
+  }catch(e){console.warn("rank:",e)}
+}
+
+/* ---------- accumulated ranking ---------- */
+const LB={period:"week",scope:"all",lang:"all",rows:null,err:"",loading:false,at:0};
+function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
+async function loadRank(){
+  if(!sbc()){LB.err="เชื่อมต่อระบบอันดับไม่ได้";LB.rows=null;if(S.view==="rank")render();return}
+  LB.loading=true;LB.err="";if(S.view==="rank")render();
+  try{
+    const {data,error}=await sbc().rpc("leaderboard",{p_room:LB.scope==="room"?(S.prog.room||null):null,
+      p_lang:LB.lang==="all"?null:LB.lang,p_since:LB.period==="week"?weekStart().toISOString():null,p_limit:50});
+    if(error) throw error;
+    LB.rows=(data||[]).map(r=>({pid:String(r.player_id),name:String(r.name||"").slice(0,24),points:num(r.points),rounds:num(r.rounds),correct:num(r.correct)}));
+    LB.at=Date.now();
+  }catch(e){console.warn("rank:",e);LB.err="โหลดอันดับไม่ได้ ตรวจอินเทอร์เน็ตแล้วกดรีเฟรช";LB.rows=null}
+  LB.loading=false;if(S.view==="rank")render();
+}
+function podiumHTML(top,me){
+  if(!top.length) return "";
+  return `<div class="podium">${[1,0,2].map(i=>top[i]?`<div class="pod p${i+1}${me&&top[i].pid===me?" me":""}">
+    <span class="pname">${esc(top[i].name)}</span><span class="ppts">${num(top[i].points??top[i].score).toLocaleString()}</span>
+    <div class="block"><b>${i+1}</b></div></div>`:`<div class="pod p${i+1} empty"><div class="block"></div></div>`).join("")}</div>`;
+}
+function viewRank(){
+  if(!LB.loading&&Date.now()-LB.at>20000&&!LB.err) setTimeout(loadRank,0);
+  const me=S.prog.oid, rows=LB.rows||[];
+  const seg=(k,opts)=>`<div class="seg" role="group">${opts.map(([v,l])=>`<button data-lb="${k}:${v}" aria-pressed="${LB[k]===v}">${l}</button>`).join("")}</div>`;
+  const myIdx=rows.findIndex(r=>r.pid===me);
+  let body;
+  if(LB.err) body=`<div class="empty">${esc(LB.err)}</div>`;
+  else if(!LB.rows) body=`<div class="empty">กำลังโหลดอันดับ…</div>`;
+  else if(LB.scope==="room"&&!S.prog.room) body=`<div class="empty">ยังไม่ได้ใส่รหัสห้องเรียน · ใส่ได้ที่เมนู → เปลี่ยนผู้เล่น</div>`;
+  else if(!rows.length) body=`<div class="empty">ยังไม่มีคะแนน${LB.period==="week"?"ในสัปดาห์นี้":""} เล่นจบสักด่านเพื่อขึ้นเป็นคนแรก</div>`;
+  else body=podiumHTML(rows.slice(0,3),me)+`<ol class="rank" start="4">${rows.slice(3).map((r,i)=>`<li class="${r.pid===me?"me":""}">
+      <span class="pos">${i+4}</span><span class="person"><span class="nick">${esc(r.name)}${r.pid===me?" (ฉัน)":""}</span><span class="sub">${r.rounds} รอบ · ถูก ${r.correct} คำ</span></span>
+      <span class="pts">${r.points.toLocaleString()}</span></li>`).join("")}</ol>
+      <p class="muted" style="text-align:center;font-size:.88rem">${myIdx>=0?`คุณอยู่อันดับที่ ${myIdx+1}`:me?"คุณยังไม่อยู่ใน 50 อันดับแรก":"เล่นจบสักด่านเพื่อขึ้นตาราง"}</p>`;
+  return `<div class="row" style="justify-content:space-between">
+    <div><p class="eyebrow">${S.prog.room&&LB.scope==="room"?"ห้อง "+esc(S.prog.room):"ผู้เล่นทุกคน"}</p><h2>อันดับ</h2></div>
+    <button class="btn" id="lb-refresh" ${LB.loading?"disabled":""}>${LB.loading?"กำลังโหลด…":"รีเฟรช"}</button></div>
+  <div class="row" style="margin-top:12px;gap:8px">
+    ${seg("period",[["week","สัปดาห์นี้"],["all","ทั้งหมด"]])}
+    ${seg("scope",[["all","ทุกคน"],["room","ห้องของฉัน"]])}
+    ${seg("lang",[["all","รวม"],["th","ไทย"],["en","English"]])}
+  </div>
+  <div style="margin-top:16px">${body}</div>`;
+}
+
+/* ---------- live rooms (host screen + players' phones) ---------- */
+let L=null, liveTimer=null;
+const liveSend=(ev,p)=>{try{L&&L.tx&&L.tx.send(ev,p)}catch(e){}};
+function openTx(pin,onMsg,onStatus){
+  if(FAKE){
+    const bc=new BroadcastChannel("live-"+pin); bc.onmessage=e=>onMsg(e.data.ev,e.data.p);
+    setTimeout(()=>onStatus("ok"),40);
+    return {send:(ev,p)=>bc.postMessage({ev,p}),close:()=>bc.close()};
+  }
+  const c=sbc(); if(!c){setTimeout(()=>onStatus("error"),0);return {send(){},close(){}}}
+  const ch=c.channel("live-"+pin,{config:{broadcast:{self:false,ack:false}}});
+  ["hello","ans","bye","lobby","q","reveal","end","state","closed"].forEach(ev=>ch.on("broadcast",{event:ev},m=>onMsg(ev,m.payload)));
+  let closing=false;
+  ch.subscribe(st=>{if(closing)return;if(st==="SUBSCRIBED")onStatus("ok");else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT")onStatus("error")});
+  return {send:(ev,p)=>ch.send({type:"broadcast",event:ev,payload:p}),close:()=>{closing=true;try{c.removeChannel(ch)}catch(e){}}};
+}
+function liveRender(){if(S.view==="live")render()}
+function liveClose(){
+  if(!L) return;
+  clearTimeout(L.timer);clearTimeout(L.joinTimer);clearInterval(L.retry);
+  if(L.role==="host") liveSend("closed",{}); else liveSend("bye",{pid:L.pid});
+  const tx=L.tx; L=null; setTimeout(()=>{try{tx&&tx.close()}catch(e){}},200);
+}
+function ensureLiveTimer(){
+  if(liveTimer) return;
+  liveTimer=setInterval(()=>{
+    if(!L||S.view!=="live") return;
+    let left=0,dur=1;
+    if(L.role==="host"&&L.phase==="question"){dur=L.cfg.dur*1000;left=dur-(Date.now()-L.qStart)}
+    else if(L.role==="player"&&L.phase==="question"){dur=L.dur||1;left=L.endsAt-Date.now()}
+    else return;
+    left=Math.max(0,left);
+    const n=$("#lt-num"),b=$("#lt-bar"); if(n)n.textContent=Math.ceil(left/1000); if(b)b.style.width=(left/dur*100)+"%";
+    if(L.role==="player"&&left<=0&&!L.sent&&!L.timeUp){L.timeUp=true;liveRender()}
+  },200);
+}
+/* host */
+function hostCreate(cfg){
+  liveClose(); hush();
+  const pin=String(Math.floor(100000+Math.random()*900000));
+  L={role:"host",pin,cfg,words:shuffle(LEVELS[cfg.lang][cfg.stage].items).slice(0,cfg.count),players:{},q:-1,phase:"connecting",answers:{},qStart:0};
+  L.tx=openTx(pin,hostMsg,st=>{if(!L||L.pin!==pin)return;if(st==="ok"&&L.phase==="connecting"){L.phase="lobby";liveRender()}if(st==="error"){L.phase="error";liveRender()}});
+  ensureLiveTimer(); liveRender();
+}
+const hostRanking=()=>Object.entries(L.players).map(([pid,x])=>({pid,name:x.name,score:x.score})).sort((a,b)=>b.score-a.score);
+function hostLobby(){liveSend("lobby",{count:Object.keys(L.players).length})}
+function hostState(){
+  if(L.phase==="question") return {phase:"question",n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000};
+  if(L.phase==="reveal") return {phase:"reveal",...L.lastReveal};
+  if(L.phase==="end") return {phase:"end",...L.lastEnd};
+  return {phase:"lobby",count:Object.keys(L.players).length};
+}
+function hostMsg(ev,p){
+  if(!L||L.role!=="host"||!p) return;
+  const pid=String(p.pid||"").slice(0,40);
+  if(ev==="hello"&&pid){
+    const isNew=!L.players[pid];
+    if(isNew) L.players[pid]={name:normName(p.name)||"ผู้เล่น",score:0}; else L.players[pid].name=normName(p.name)||L.players[pid].name;
+    hostLobby(); liveSend("state",{to:pid,...hostState()});
+    if(isNew) liveRender();
+  } else if(ev==="bye"&&L.players[pid]&&L.phase==="lobby"){
+    delete L.players[pid]; hostLobby(); liveRender();
+  } else if(ev==="ans"&&L.phase==="question"&&p.n===L.q&&L.players[pid]&&!L.answers[pid]){
+    const a=String(p.a||"").slice(0,120), el=Date.now()-L.qStart;
+    const ok=norm(a,L.cfg.lang)!==""&&norm(a,L.cfg.lang)===norm(L.words[L.q],L.cfg.lang);
+    // Kahoot-style: up to 1000 for an instant right answer, 500 at the buzzer
+    const pts=ok?Math.round(1000*(1-Math.min(1,el/(L.cfg.dur*1000))/2)):0;
+    L.answers[pid]={a,ok,pts};
+    if(Object.keys(L.answers).length>=Object.keys(L.players).length) hostReveal(); else liveRender();
+  }
+}
+function hostStartQ(){
+  L.q++; L.answers={}; L.phase="question"; L.qStart=Date.now();
+  liveSend("q",{n:L.q,total:L.words.length,left:L.cfg.dur*1000,dur:L.cfg.dur*1000});
+  clearTimeout(L.timer); L.timer=setTimeout(()=>{if(L&&L.role==="host"&&L.phase==="question")hostReveal()},L.cfg.dur*1000+300);
+  liveRender(); const w=L.words[L.q]; setTimeout(()=>speak(w,L.cfg.lang,false),400);
+}
+function hostReveal(){
+  clearTimeout(L.timer); L.phase="reveal";
+  for(const [pid,a] of Object.entries(L.answers)) if(L.players[pid]) L.players[pid].score+=a.pts;
+  const rank=hostRanking(), res={};
+  rank.forEach((r,i)=>{const a=L.answers[r.pid];res[r.pid]={ok:!!a?.ok,pts:a?.pts||0,score:r.score,rank:i+1,answered:!!a}});
+  const w=L.words[L.q];
+  L.lastReveal={n:L.q,total:L.words.length,word:w,meaning:MEAN[w]||"",res,top:rank.slice(0,5).map(r=>({name:r.name,score:r.score})),
+    right:Object.values(L.answers).filter(a=>a.ok).length,count:rank.length};
+  liveSend("reveal",L.lastReveal); liveRender();
+}
+function hostEnd(){
+  L.phase="end"; const rank=hostRanking(), ranks={};
+  rank.forEach((r,i)=>ranks[r.pid]={rank:i+1,score:r.score});
+  L.lastEnd={podium:rank.slice(0,3).map(r=>({name:r.name,score:r.score})),list:rank.slice(0,40).map(r=>({name:r.name,score:r.score})),ranks,count:rank.length};
+  liveSend("end",L.lastEnd); liveRender();
+}
+/* player */
+// one id per browser tab, so two tabs on one device join as two players
+function livePid(){let id="";try{id=sessionStorage.getItem("dict.livepid")||""}catch(e){}if(!id){id=newId();try{sessionStorage.setItem("dict.livepid",id)}catch(e){}}return id}
+function playerJoin(pin,name){
+  liveClose(); hush();
+  L={role:"player",pin,pid:livePid(),name,phase:"connecting",n:-1,total:0,endsAt:0,dur:1,sent:false,ans:"",score:0,count:0};
+  const hello=()=>liveSend("hello",{pid:L.pid,name:L.name});
+  L.tx=openTx(pin,playerMsg,st=>{
+    if(!L||L.pin!==pin) return;
+    if(st==="ok"&&L.phase==="connecting"){
+      L.phase="waiting"; hello(); L.retry=setInterval(()=>{if(L&&L.phase==="waiting")hello()},2000);
+      L.joinTimer=setTimeout(()=>{if(L&&L.role==="player"&&L.phase==="waiting"){clearInterval(L.retry);L.phase="nohost";liveRender()}},8000);
+      liveRender();
+    }
+    if(st==="error"){L.phase="error";liveRender()}
+  });
+  ensureLiveTimer(); liveRender();
+}
+function playerMsg(ev,p){
+  if(!L||L.role!=="player"||!p) return;
+  if(ev==="state"){if(p.to!==L.pid)return;ev=p.phase==="question"?"q":p.phase}
+  if(L.phase==="waiting"||L.phase==="nohost"){clearInterval(L.retry);clearTimeout(L.joinTimer);L.phase="lobby"}
+  if(ev==="lobby"){L.count=num(p.count);if(L.phase==="lobby")liveRender()}
+  else if(ev==="q"){L.phase="question";L.n=num(p.n);L.total=num(p.total);L.dur=num(p.dur)||num(p.left)||1;L.endsAt=Date.now()+num(p.left);L.sent=false;L.timeUp=false;L.ans="";liveRender();setTimeout(()=>$("#live-ans")?.focus(),60)}
+  else if(ev==="reveal"){L.phase="reveal";L.reveal=p;const me=p.res&&p.res[L.pid];if(me)L.score=num(me.score);liveRender()}
+  else if(ev==="end"){L.phase="end";L.end=p;liveRender()}
+  else if(ev==="closed"){L.phase="closed";liveRender()}
+}
+function playerSend(){
+  if(!L||L.phase!=="question"||L.sent||L.timeUp) return;
+  const a=($("#live-ans")?.value||"").slice(0,120); if(!a.trim()){$("#live-ans")?.focus();return}
+  L.ans=a; L.sent=true; liveSend("ans",{pid:L.pid,n:L.n,a}); liveRender();
+}
+function joinURL(pin){return location.href.split(/[?#]/)[0]+"?pin="+pin}
+const timerHTML=()=>`<div class="ltimer"><b id="lt-num">–</b><div class="bar"><i id="lt-bar" style="width:100%"></i></div></div>`;
+function viewLive(){
+  if(!ONLINE) return `<h2>เล่นสด</h2><div class="empty" style="margin-top:14px">ห้องเล่นสดใช้ได้บนเว็บที่อัปขึ้นเอง (เช่น Netlify) ไม่ใช่ในหน้า claude.ai</div>`;
+  if(!L){
+    const st=LIVECFG;
+    return `<div class="live-grid">
+      <form class="lcard" id="join-form" novalidate>
+        <p class="eyebrow">นักเรียน</p><h2>เข้าร่วมเกม</h2>
+        <label for="live-pin">รหัส PIN</label>
+        <input id="live-pin" class="pin-in" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="000000" value="${esc(S.livePin||"")}">
+        <label for="live-name">ชื่อที่ใช้ในเกม</label>
+        <input id="live-name" class="name-in" maxlength="24" autocomplete="nickname" value="${esc(S.nick||"")}" placeholder="ชื่อเล่น">
+        <div class="err" id="join-err" role="alert"></div>
+        <button class="btn primary start" type="submit">เข้าห้อง</button>
+      </form>
+      <form class="lcard" id="host-form" novalidate>
+        <p class="eyebrow">ครู / คนจัดเกม</p><h2>สร้างห้อง</h2>
+        <p class="muted" style="margin:0;font-size:.88rem">เปิดหน้านี้บนจอใหญ่ที่มีลำโพง เครื่องนี้จะอ่านคำให้ทุกคนฟัง</p>
+        <label>ภาษา</label>
+        <div class="seg" role="group">${["th","en"].map(l=>`<button type="button" data-lcfg="lang:${l}" aria-pressed="${st.lang===l}">${LANG[l].label}</button>`).join("")}</div>
+        <label for="lc-stage">ด่าน</label>
+        <select id="lc-stage">${LEVELS[st.lang].map((lv,i)=>`<option value="${i}" ${st.stage===i?"selected":""}>ด่าน ${i+1} · ${esc(lv.title)}</option>`).join("")}</select>
+        <div class="row" style="gap:12px">
+          <div style="display:grid;gap:4px"><label for="lc-count">จำนวนคำ</label><select id="lc-count">${[5,10,15,20].map(n=>`<option ${st.count===n?"selected":""}>${n}</option>`).join("")}</select></div>
+          <div style="display:grid;gap:4px"><label for="lc-dur">เวลาต่อคำ</label><select id="lc-dur">${[15,20,30,45].map(n=>`<option value="${n}" ${st.dur===n?"selected":""}>${n} วินาที</option>`).join("")}</select></div>
+        </div>
+        <button class="btn primary start" type="submit">สร้างห้อง</button>
+      </form></div>`;
+  }
+  if(L.role==="host"){
+    const players=Object.values(L.players), n=players.length;
+    const close=`<button class="btn" id="live-close">ปิดห้อง</button>`;
+    if(L.phase==="connecting") return `<div class="lstage"><p class="muted">กำลังเปิดห้อง…</p></div>`;
+    if(L.phase==="error") return `<div class="lstage"><h2>เปิดห้องไม่สำเร็จ</h2><p class="muted">ตรวจอินเทอร์เน็ตแล้วลองใหม่</p><button class="btn primary" id="live-close">กลับ</button></div>`;
+    if(L.phase==="lobby") return `<div class="lstage">
+      <p class="eyebrow">${LANG[L.cfg.lang].label} · ด่าน ${L.cfg.stage+1} · ${L.words.length} คำ · ${L.cfg.dur} วินาที/คำ</p>
+      <p class="muted" style="margin:0">เข้าเกมที่</p>
+      <div class="joinurl"><span id="join-url">${esc(joinURL(L.pin))}</span><button class="btn" id="copy-url" type="button">คัดลอก</button></div>
+      <p class="muted" style="margin:0">หรือใส่รหัส PIN</p>
+      <div class="bigpin">${L.pin.slice(0,3)} ${L.pin.slice(3)}</div>
+      <div class="pcount"><b>${n}</b> คนเข้าห้องแล้ว</div>
+      <div class="pchips">${players.map(x=>`<span>${esc(x.name)}</span>`).join("")||`<span class="muted" style="border:0">รอผู้เล่น…</span>`}</div>
+      <div class="row" style="justify-content:center">${close}<button class="btn primary" id="live-start" ${n?"":"disabled"}>เริ่มเกม</button></div></div>`;
+    if(L.phase==="question"){const got=Object.keys(L.answers).length;return `<div class="lstage">
+      <p class="eyebrow">ข้อ ${L.q+1} / ${L.words.length}</p><h2>ฟังแล้วพิมพ์คำที่ได้ยิน</h2>
+      ${timerHTML()}
+      <div class="row" style="justify-content:center"><button class="speak" id="live-say" aria-label="อ่านอีกครั้ง">${icon.speaker}</button><button class="btn" id="live-slow">${icon.slow} อ่านช้า</button></div>
+      <div class="pcount"><b>${got}</b> / ${n} คนตอบแล้ว</div>
+      <div class="row" style="justify-content:center"><button class="btn" id="live-reveal">เฉลยเลย</button></div></div>`}
+    if(L.phase==="reveal"){const r=L.lastReveal;return `<div class="lstage">
+      <p class="eyebrow">ข้อ ${r.n+1} / ${r.total} · ถูก ${r.right} จาก ${r.count} คน</p>
+      <div class="bigword">${esc(r.word)}</div><p class="muted" style="margin:0">${esc(r.meaning)}</p>
+      <ol class="top5">${r.top.map((x,i)=>`<li><span>${i+1}</span><b>${esc(x.name)}</b><em>${x.score.toLocaleString()}</em></li>`).join("")}</ol>
+      <div class="row" style="justify-content:center">${close}<button class="btn primary" id="live-next">${r.n+1<r.total?"ข้อต่อไป":"ดูผลรวม"}</button></div></div>`}
+    if(L.phase==="end"){const e=L.lastEnd;return `<div class="lstage">
+      <p class="eyebrow">จบเกม · ${e.count} คน</p><h2>ผู้ชนะ</h2>
+      ${podiumHTML(e.podium)}
+      <ol class="top5" start="4">${e.list.slice(3).map((x,i)=>`<li><span>${i+4}</span><b>${esc(x.name)}</b><em>${x.score.toLocaleString()}</em></li>`).join("")}</ol>
+      <div class="row" style="justify-content:center">${close}<button class="btn primary" id="live-again">เล่นอีกรอบ</button></div></div>`}
+  }
+  // player
+  const leave=`<button class="btn" id="live-close">ออกจากห้อง</button>`;
+  const ph=L.phase;
+  if(ph==="connecting"||ph==="waiting") return `<div class="lstage"><p class="muted">กำลังเข้าห้อง ${esc(L.pin)}…</p>${leave}</div>`;
+  if(ph==="nohost") return `<div class="lstage"><h2>ไม่พบห้องนี้</h2><p class="muted">ตรวจรหัส PIN อีกครั้ง หรือรอให้ครูเปิดห้องก่อน</p>${leave}</div>`;
+  if(ph==="error") return `<div class="lstage"><h2>เชื่อมต่อไม่ได้</h2><p class="muted">ตรวจอินเทอร์เน็ตแล้วลองใหม่</p>${leave}</div>`;
+  if(ph==="closed") return `<div class="lstage"><h2>ห้องนี้ปิดแล้ว</h2>${leave}</div>`;
+  if(ph==="lobby") return `<div class="lstage"><p class="eyebrow">ห้อง ${esc(L.pin)}</p><h2>เข้าห้องแล้ว!</h2>
+    <div class="bigname">${esc(L.name)}</div><p class="muted">รอครูเริ่มเกม · ตอนนี้มี ${L.count} คนในห้อง</p>${leave}</div>`;
+  if(ph==="question") return `<div class="lstage">
+    <p class="eyebrow">ข้อ ${L.n+1} / ${L.total} · ${L.score.toLocaleString()} คะแนน</p>
+    ${timerHTML()}
+    ${L.sent?`<h2>ส่งแล้ว!</h2><div class="bigname">${esc(L.ans)}</div><p class="muted">รอเฉลย…</p>`
+      :L.timeUp?`<h2>หมดเวลา</h2><p class="muted">รอเฉลย…</p>`
+      :`<p class="muted" style="margin:0">ฟังเสียงจากจอครู แล้วพิมพ์คำที่ได้ยิน</p>
+      <form id="live-ans-form" class="ansline" novalidate><input id="live-ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="เขียนตรงนี้…" value="${esc(L.ans)}"></form>
+      <button class="btn primary start" id="live-send">ส่งคำตอบ</button>`}</div>`;
+  if(ph==="reveal"){const r=L.reveal||{},me=(r.res||{})[L.pid]||{};return `<div class="lstage">
+    <p class="eyebrow">ข้อ ${num(r.n)+1} / ${num(r.total)}</p>
+    <div class="verdict ${me.ok?"ok":"no"}">${me.ok?"ถูก!":me.answered?"ผิด":"ไม่ได้ตอบ"}</div>
+    ${me.ok?`<div class="gain">+${num(me.pts)}</div>`:""}
+    <div class="bigword">${esc(r.word||"")}</div><p class="muted" style="margin:0">${esc(r.meaning||"")}</p>
+    <p class="pcount">อันดับที่ <b>${num(me.rank)||"-"}</b> · ${L.score.toLocaleString()} คะแนน</p></div>`}
+  if(ph==="end"){const e=L.end||{},me=(e.ranks||{})[L.pid]||{};return `<div class="lstage">
+    <p class="eyebrow">จบเกม</p><h2>คุณได้อันดับที่ ${num(me.rank)||"-"}</h2><p class="pcount">${num(me.score).toLocaleString()} คะแนน จาก ${num(e.count)} คน</p>
+    ${podiumHTML(e.podium||[])}${leave}</div>`}
+  return "";
+}
+const LIVECFG={lang:"th",stage:0,count:10,dur:20};
+function bindLive(){
+  const jf=$("#join-form");
+  if(jf){
+    jf.onsubmit=e=>{e.preventDefault();const pin=($("#live-pin").value||"").replace(/\D/g,""),name=normName($("#live-name").value);
+      if(pin.length!==6){$("#join-err").textContent="รหัส PIN ต้องเป็นตัวเลข 6 หลัก";return}
+      if(!name){$("#join-err").textContent="ใส่ชื่อก่อนเข้าห้อง";return}
+      S.livePin=pin; playerJoin(pin,name)};
+    $("#host-form").onsubmit=e=>{e.preventDefault();LIVECFG.stage=+$("#lc-stage").value;LIVECFG.count=+$("#lc-count").value;LIVECFG.dur=+$("#lc-dur").value;hostCreate({...LIVECFG})};
+    document.querySelectorAll("[data-lcfg]").forEach(b=>b.onclick=()=>{LIVECFG.lang=b.dataset.lcfg.split(":")[1];LIVECFG.stage=0;render()});
+  }
+  $("#live-close")&&($("#live-close").onclick=()=>{liveClose();render()});
+  $("#live-start")&&($("#live-start").onclick=hostStartQ);
+  $("#live-next")&&($("#live-next").onclick=()=>{if(L.q+1<L.words.length)hostStartQ();else hostEnd()});
+  $("#live-reveal")&&($("#live-reveal").onclick=hostReveal);
+  $("#live-say")&&($("#live-say").onclick=()=>speak(L.words[L.q],L.cfg.lang,false));
+  $("#live-slow")&&($("#live-slow").onclick=()=>speak(L.words[L.q],L.cfg.lang,true));
+  $("#live-again")&&($("#live-again").onclick=()=>hostCreate(L.cfg));
+  $("#copy-url")&&($("#copy-url").onclick=()=>{const t=joinURL(L.pin);navigator.clipboard?.writeText(t).then(()=>{$("#copy-url").textContent="คัดลอกแล้ว"},()=>{getSelection().selectAllChildren($("#join-url"))})});
+  const af=$("#live-ans-form"); if(af){af.onsubmit=e=>{e.preventDefault();playerSend()};$("#live-ans").oninput=e=>{L.ans=e.target.value}}
+  $("#live-send")&&($("#live-send").onclick=playerSend);
+}
+window.addEventListener("pagehide",()=>{if(L)liveClose()});
+
+/* ============================================================
+   Views
+   ============================================================ */
+function render(){
+  clearInterval(ringTimer);
+  const named=store.get("dict.nickSet",false)&&!!S.nick&&S.view!=="name";
+  $("#menu").hidden=!named; $("#burger").hidden=!named; setMenu(false);
+  $("#who-nm").textContent=S.nick; $("#who-av").textContent=(S.nick.match(/[ก-ฮA-Za-z0-9]/)||[...(S.nick||"?")])[0].toUpperCase();
+  document.querySelectorAll(".menu-lang [data-lang]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===S.lang)));
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.view===S.view||(S.view==="play"||S.view==="result")&&b.dataset.view==="home")));
+  const app=$("#app");
+  if(S.view==="name"){
+    const n=$("#nick"); if(n&&$("#name-form")){if(!n.value&&S.nick)n.value=S.nick;return}
+    app.innerHTML=viewName();
+  }
+  else if(S.view==="home") app.innerHTML=viewHome();
+  else if(S.view==="play") app.innerHTML=viewPlay();
+  else if(S.view==="result") app.innerHTML=viewResult();
+  else if(S.view==="badges") app.innerHTML=viewBadges();
+  else if(S.view==="history") app.innerHTML=viewHistory();
+  else if(S.view==="rank") app.innerHTML=viewRank();
+  else if(S.view==="live") app.innerHTML=viewLive();
+  bind();
+}
+
+function viewName(){
+  const first=!store.get("dict.nickSet",false);
+  const pl=Object.entries(players()).filter(([id])=>id!==S.pid);
+  return `<form class="cover" id="name-form" novalidate>
+    <div><p class="eyebrow">${first?"ก่อนเริ่มเล่น":"เปลี่ยนผู้เล่น"}</p>
+      <h2>${first?"เขียนชื่อบนปกสมุดก่อนนะ":"ใครจะเล่นต่อ?"}</h2></div>
+    <label class="label" for="nick"><span>ชื่อเล่น · Nickname</span>
+      <input id="nick" maxlength="24" autocomplete="nickname" placeholder="เช่น น้องมะปราง" value="${first?"":esc(S.nick)}"></label>
+    ${ONLINE?`<label class="label" for="room"><span>รหัสห้องเรียน (ถ้ามี) · เช่น P5-2</span>
+      <input id="room" class="room-in" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="ไม่บังคับ" value="${first?"":esc(S.prog.room||"")}"></label>`:""}
+    <p class="muted" style="margin:0">ชื่อใหม่จะเริ่มสมุดเล่มใหม่ คะแนนเป็น 0 · พิมพ์ชื่อเดิมเพื่อเล่นต่อจากที่ค้างไว้</p>
+    ${pl.length?`<div class="players"><span class="eyebrow">ผู้เล่นที่เคยเล่น</span><div class="row" style="justify-content:center">${pl.map(([id,n])=>`<button type="button" class="pchip" data-player="${esc(n)}">${esc(n)}</button>`).join("")}</div></div>`:""}
+    <div class="err" id="nick-err" role="alert"></div>
+    <div class="row">${first?"":`<button type="button" class="btn" id="name-cancel">ยกเลิก</button>`}
+      <button type="submit" class="btn primary" id="name-save">${first?"เริ่มเล่น":"เข้าเล่น"}</button></div>
+  </form>`;
+}
+function saveName(v){
+  v=normName(v??$("#nick").value);
+  if(!v){$("#nick-err").textContent="พิมพ์ชื่อเล่นอย่างน้อย 1 ตัวอักษร";$("#nick").focus();return}
+  hush();
+  if(pidOf(v)!==S.pid) loadPlayer(v);
+  else {S.nick=v;const pl=players();pl[S.pid]=v;store.set("dict.players",pl)}
+  const rm=$("#room"); if(rm){const r=cleanRoom(rm.value);if(r.length===1){$("#nick-err").textContent="รหัสห้องต้องยาว 2–12 ตัว";return}if((S.prog.room||"")!==r){S.prog.room=r;saveProgress()}}
+  store.set("dict.nick",v); store.set("dict.nickSet",true);
+  S.view="home"; render();
+  if(S.db) syncPlayer().then(()=>{if(S.view==="home"||S.view==="badges"||S.view==="history")render()});
+}
+
+function viewHome(){
+  const L=LEVELS[S.lang], lp=num(S.prog.points[S.lang]), t=total(S.prog), nb=nextBadge(t), got=earnedBadges(t);
+  const last=got[got.length-1];
+  const prevAt=last?last.at:0;
+  const purse=`<div class="purse">
+    ${nb?lockedArt(nb,64):badgeArt(last,64,true)}
+    <div><div class="eyebrow">คะแนนสะสมทั้งหมด</div>
+      <div class="big">${t.toLocaleString()} คะแนน</div>
+      ${nb?`<div class="muted" style="font-size:.88rem">อีก ${nb.at-t} คะแนน ปลดล็อกแบดจ์ “${esc(nb.name)}”</div>
+        <div class="bar"><i style="width:${Math.round((t-prevAt)/(nb.at-prevAt)*100)}%"></i></div>`
+        :`<div class="muted" style="font-size:.88rem">สะสมแบดจ์ครบทุกอันแล้ว</div>`}
+    </div></div>`;
+  const COLORS=["#FFE07A","#A6E6CC","#AED9F7","#CDBDF6","#FFB9A6","#F7C6DD"];
+  const cards=L.map((lv,i)=>{
+    const open=stageOpen(S.lang,i);
+    return `<div class="card3d" data-i="${i}">
+      <div class="face scard ${open?"":"locked"}" style="--c:${COLORS[i%COLORS.length]}">
+        <span class="tag">${S.lang.toUpperCase()} · STAGE</span>
+        <span class="lv">${i+1}</span>
+        ${open?`<span class="word">${esc(lv.items[0])}</span>`:`<span class="biglock" style="--keyhole:#22305A">${LOCK}</span>`}
+        <span class="ttl">${esc(lv.title)}</span>
+        <span class="dots6">${Array.from({length:6},(_,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</span>
+        ${open?"":`<span class="lockpill" style="--keyhole:#22305A">${LOCK} ล็อก</span>`}
+      </div>
+      <div class="face back" style="--keyhole:#22305A"><span class="blabel">ด่าน</span><span class="bnum">${i+1}</span>${open?"":LOCK}</div>
+    </div>`}).join("");
+  const dots=L.map((_,i)=>`<button data-dot="${i}" aria-label="ไปด่าน ${i+1}"></button>`).join("");
+  return `
+  <div class="row home-lang" style="justify-content:space-between">
+    <div class="lang" role="group" aria-label="ภาษา">
+      <button id="lang-th" data-lang="th" aria-pressed="${S.lang==="th"}">ไทย</button>
+      <button id="lang-en" data-lang="en" aria-pressed="${S.lang==="en"}">English</button>
+    </div>
+    <span class="muted">คะแนน${LANG[S.lang].label}: <b style="font-variant-numeric:tabular-nums">${lp}</b></span>
+  </div>
+  ${purse}
+  <div class="ring-wrap" id="ring-wrap" tabindex="0" aria-roledescription="carousel" aria-label="เลือกด่าน (ปัดซ้ายขวาเพื่อหมุน)">
+    <div class="ring" id="ring" aria-hidden="true">${cards}</div>
+  </div>
+  <div class="stage-info" id="stage-info" aria-live="polite"></div>
+  <div class="ring-ctl" hidden>
+    <button class="arrow" id="prev" aria-label="ด่านก่อนหน้า">‹</button>
+    <div class="dots" id="dots">${dots}</div>
+    <button class="arrow" id="next-slide" aria-label="ด่านถัดไป">›</button>
+  </div>
+  <p class="muted" style="text-align:center;font-size:.88rem;margin-top:14px">ปัดหรือแตะการ์ดเพื่อเลือกด่าน · ฟังให้ครบ 10 คำแล้วค่อยตรวจทีเดียว คะแนนสะสมไปเรื่อยๆ เพื่อเปิดด่านใหม่และแบดจ์</p>`;
+}
+
+function stageInfo(i){
+  const L=LEVELS[S.lang], lv=L[i], open=stageOpen(S.lang,i), best=num(S.prog.best[key(S.lang,i)]), lp=num(S.prog.points[S.lang]);
+  return `<div class="fade-in" style="display:grid;justify-items:center;gap:6px;width:100%">
+    <span class="eyebrow">ด่าน ${i+1} / ${L.length} · สุ่ม ${ROUND} คำจากคลัง ${lv.items.length} คำ · คำละ ${PTS} คะแนน</span>
+    <h2>${esc(lv.title)}</h2>
+    <span class="sub">${esc(lv.sub)}</span>
+    ${open?`${starHTML(starsFor(best))}<button class="btn primary start" data-start="${i}">${best?"เล่นอีกครั้ง":"เริ่ม"}</button>`
+      :`<span class="lockline" style="--keyhole:var(--paper)">${LOCK} สะสมคะแนน${LANG[S.lang].label}อีก ${STAGE_AT[i]-lp} คะแนนเพื่อเปิดด่านนี้</span>
+        <div class="bar"><i style="width:${Math.round(lp/STAGE_AT[i]*100)}%"></i></div>`}
+  </div>`;
+}
+// Each stage keeps a shuffled deck of words not yet played; a round deals the next 10,
+// so every word in the bank comes up once before any word repeats.
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function drawWords(lang,i){
+  const k=key(lang,i), pool=LEVELS[lang][i].items;
+  S.prog.deck=S.prog.deck&&typeof S.prog.deck==="object"?S.prog.deck:{};
+  let deck=(Array.isArray(S.prog.deck[k])?S.prog.deck[k]:[]).filter(w=>pool.includes(w));
+  const picked=[];
+  while(picked.length<Math.min(ROUND,pool.length)){
+    if(!deck.length) deck=shuffle(pool.filter(w=>!picked.includes(w)));
+    const w=deck.shift(); if(!picked.includes(w)) picked.push(w);
+  }
+  S.prog.deck[k]=deck; saveLocal();
+  return picked;
+}
+function startLevel(i){
+  hush();
+  const words=drawWords(S.lang,i);
+  S.game={lang:S.lang,i,words,pos:0,answers:Array(words.length).fill(""),peeked:Array(words.length).fill(false)};
+  S.view="play"; render();
+  setTimeout(()=>sayCurrent(false),250);
+}
+const word=(g,j)=>g.words[j];
+function sayCurrent(slow){const g=S.game;speak(word(g,g.pos),g.lang,slow)}
+function viewPlay(){
+  const g=S.game, lv=LEVELS[g.lang][g.i], n=g.words.length, lastQ=g.pos===n-1;
+  const lines=g.answers.map((a,j)=>j===g.pos
+    ?`<div class="line cur"><span class="n">${j+1}</span><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" lang="${g.lang}" placeholder="เขียนคำที่ได้ยิน…" aria-label="คำตอบข้อ ${j+1}" value="${esc(a)}"></div>`
+    :`<div class="line"><span class="n">${j+1}</span>${j<g.pos||a?`<span class="written ${a?"":"blank"}">${a?esc(a):"—"}</span>`:""}</div>`).join("");
+  return `
+  ${hasVoice(g.lang)?"":`<div class="notice">อุปกรณ์นี้ไม่มีเสียงอ่าน${g.lang==="th"?"ภาษาไทย":"ภาษาอังกฤษ"} ให้กด “แอบดู” แทน หรือให้คนอื่นอ่านให้ฟัง (ข้อที่แอบดูได้ ${PTS/2} คะแนน)</div>`}
+  <section class="page" aria-label="แบบฝึกหัด">
+    <div class="page-head">
+      <div><span class="eyebrow">${LANG[g.lang].label} · ด่าน ${g.i+1}</span><h2>${esc(lv.title)}</h2></div>
+      <span class="muted" style="font-variant-numeric:tabular-nums">ข้อ ${g.pos+1}/${n}</span>
+    </div>
+    <div class="controls" style="border-top:0;border-bottom:2px solid var(--rule)">
+      <button class="speak" id="speak" aria-label="ฟังอีกครั้ง">${icon.speaker}</button>
+      <button class="btn" id="slow">${icon.slow} ฟังช้า</button>
+      <button class="btn" id="peek">${icon.eye} แอบดู</button>
+      <span id="peekbox" class="peek" hidden></span>
+    </div>
+    ${voicePanel(g.lang)}
+    <div class="lines">${lines}</div>
+    <div class="controls">
+      <button class="btn" id="quit">ออก</button>
+      <button class="btn" id="back" ${g.pos===0?"disabled":""}>‹ ข้อก่อน</button>
+      <span class="spacer"></span>
+      <button class="btn primary" id="advance">${lastQ?"ส่งตรวจทั้งหมด":"คำต่อไป"} ↵</button>
+    </div>
+  </section>`;
+}
+function keepAnswer(){const g=S.game,inp=$("#answer");if(inp)g.answers[g.pos]=inp.value}
+function advance(){
+  keepAnswer();
+  const g=S.game,n=g.answers.length;
+  if(g.pos+1>=n){finishLevel();return}
+  g.pos++; render(); $("#answer")?.focus(); setTimeout(()=>sayCurrent(false),200);
+}
+function goBack(){keepAnswer();const g=S.game;if(g.pos>0){g.pos--;render();$("#answer")?.focus()}}
+
+function finishLevel(){
+  hush();
+  const g=S.game, n=g.answers.length;
+  g.marks=g.answers.map((a,j)=>norm(a,g.lang)!==""&&norm(a,g.lang)===norm(word(g,j),g.lang));
+  g.correct=g.marks.filter(Boolean).length;
+  g.gain=g.marks.reduce((s,ok,j)=>s+(ok?(g.peeked[j]?PTS/2:PTS):0),0);
+  const before=total(S.prog), beforeLang=num(S.prog.points[g.lang]);
+  S.prog.points[g.lang]=beforeLang+g.gain;
+  const k=key(g.lang,g.i); S.prog.best[k]=Math.max(num(S.prog.best[k]),g.correct);
+  const after=total(S.prog);
+  g.newBadges=BADGES.filter(b=>before<b.at&&after>=b.at);
+  g.newStages=STAGE_AT.map((at,i)=>i).filter(i=>beforeLang<STAGE_AT[i]&&S.prog.points[g.lang]>=STAGE_AT[i]);
+  const play={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),at:new Date().toISOString(),lang:g.lang,i:g.i,
+    correct:g.correct,n,gain:g.gain,items:g.answers.map((a,j)=>({w:word(g,j),a:a.slice(0,120),ok:g.marks[j]}))};
+  S.hist.unshift(play); S.hist=S.hist.slice(0,100);
+  saveProgress(play);
+  submitRound(g);
+  S.view="result"; render(); window.scrollTo({top:0});
+}
+function answerRows(items){
+  return `<div class="answers">${items.map((x,j)=>`<div class="ans">
+    <span class="n">${j+1}</span>
+    <span class="main"><span class="written ${x.ok?"":x.a?"strike":"blank"}">${x.a?esc(x.a):"—"}</span>${x.ok?"":`<span class="fix">${esc(x.w)}</span>`}</span>
+    <span class="mark">${x.ok?"✓":"✗"}</span>
+    ${MEAN[x.w]?`<span class="meaning">${esc(MEAN[x.w])}</span>`:""}
+  </div>`).join("")}</div>`;
+}
+function viewResult(){
+  const g=S.game, n=g.answers.length, L=LEVELS[g.lang];
+  const hasNext=g.i+1<L.length, nextOpen=hasNext&&stageOpen(g.lang,g.i+1);
+  return `<section class="page">
+    <div class="result">
+      <span class="eyebrow">${LANG[g.lang].label} · ด่าน ${g.i+1} · ${esc(L[g.i].title)}</span>
+      <div class="circled">${g.correct}/${n}</div>
+      ${starHTML(starsFor(g.correct)).replace('class="stars"','class="stars" style="font-size:1.8rem"')}
+      <div class="gain">+${g.gain} คะแนน · สะสม ${total(S.prog).toLocaleString()}</div>
+      ${g.newStages.length?`<div class="row" style="justify-content:center">${g.newStages.map(i=>`<span class="newstage">เปิดด่าน ${i+1} แล้ว!</span>`).join("")}</div>`:""}
+      ${g.newBadges.length?`<h2>ได้แบดจ์ใหม่!</h2><div class="unlocks">${g.newBadges.map(b=>`<figure class="badge-reveal">${badgeArt(b,150,true)}<figcaption>${esc(b.name)}</figcaption></figure>`).join("")}</div>`:""}
+    </div>
+    <div style="margin-top:8px">${answerRows(g.answers.map((a,j)=>({w:word(g,j),a,ok:g.marks[j]})))}</div>
+    <div class="controls" style="justify-content:center">
+      <button class="btn" id="retry">เล่นด่านนี้อีกครั้ง</button>
+      ${nextOpen?`<button class="btn primary" id="nextlvl">ไปด่าน ${g.i+2}</button>`:""}
+      <button class="btn" id="home">กลับหน้าด่าน</button>
+    </div>
+  </section>`;
+}
+
+function viewBadges(){
+  const t=total(S.prog), got=earnedBadges(t).length;
+  return `<p class="eyebrow">สะสมแล้ว ${got}/${BADGES.length} · ${t.toLocaleString()} คะแนน</p>
+  <h2>สมุดสะสมแบดจ์</h2>
+  <p class="muted">ถูก 1 คำได้ ${PTS} คะแนน คะแนนทั้งภาษาไทยและอังกฤษรวมกันเพื่อปลดล็อก</p>
+  <div class="badges">${BADGES.map(b=>{const e=t>=b.at;
+    return `<div class="bcard ${e?"":"locked"}">${e?badgeArt(b,130,true):lockedArt(b,130)}
+      <span class="bn">${esc(b.name)}</span>
+      <span class="bl">${e?"ปลดล็อกแล้ว":`ปลดล็อกที่ ${b.at.toLocaleString()} คะแนน (อีก ${(b.at-t).toLocaleString()})`}</span></div>`}).join("")}</div>`;
+}
+
+function viewHistory(){
+  const H=S.hist, rounds=H.length;
+  if(!rounds) return `<h2>ประวัติการเล่น</h2><div class="empty" style="margin-top:14px">ยังไม่มีประวัติ เล่นจบสักด่านแล้วผลจะมาอยู่ที่นี่</div>`;
+  const words=H.reduce((s,h)=>s+h.n,0), right=H.reduce((s,h)=>s+h.correct,0);
+  const miss={}; H.forEach(h=>h.items.forEach(x=>{if(!x.ok)miss[x.w]=(miss[x.w]||0)+1}));
+  const top=Object.entries(miss).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const fmt=iso=>{try{return new Date(iso).toLocaleString("th-TH",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}catch(e){return ""}};
+  return `<p class="eyebrow">${S.dbNote==="shared"?"บันทึกไว้กับบัญชีของคุณ":"บันทึกไว้ในเครื่องนี้"}</p>
+  <h2>ประวัติการเล่น</h2>
+  <div class="stats">
+    <div class="stat"><b>${rounds}</b><span>รอบที่เล่น</span></div>
+    <div class="stat"><b>${Math.round(right/words*100)}%</b><span>ตอบถูก</span></div>
+    <div class="stat"><b>${total(S.prog).toLocaleString()}</b><span>คะแนนสะสม</span></div>
+  </div>
+  ${top.length?`<h3 class="sec">คำที่พลาดบ่อย</h3><div class="missed">${top.map(([w,c])=>`<span title="${esc(MEAN[w]||"")}">${esc(w)}<small>×${c}</small></span>`).join("")}</div>`:""}
+  <h3 class="sec">ทุกรอบ</h3>
+  <div class="hist">${H.map(h=>{const lv=LEVELS[h.lang][h.i];return `<details>
+    <summary><span class="sc">${h.correct}/${h.n}</span>
+      <span class="what"><b>${esc(lv?lv.title:"")}</b><span>${LANG[h.lang].label} · ด่าน ${h.i+1} · ${fmt(h.at)}</span></span>
+      <span class="pt">+${h.gain}</span></summary>
+    ${answerRows(h.items)}
+  </details>`}).join("")}</div>`;
+}
+
+/* ============================================================
+   Carousel
+   ============================================================ */
+let ringTimer=null;
+function setupRing(){
+  const ring=$("#ring"), wrap=$("#ring-wrap"); if(!ring) return;
+  const cards=[...ring.children], n=cards.length, A=360/n, dots=[...document.querySelectorAll("[data-dot]")];
+  const R=Math.round(cards[0].offsetWidth/2/Math.tan(Math.PI/n))+14;
+  cards.forEach((c,i)=>c.style.transform=`rotateY(${i*A}deg) translateZ(${R}px)`);
+  // S.slide holds an unbounded step count so the ring can keep spinning past the last card
+  let rot=S.slide[S.lang];
+  if(rot==null){rot=0;LEVELS[S.lang].forEach((_,i)=>{if(stageOpen(S.lang,i))rot=i})}
+  const front=()=>((Math.round(rot)%n)+n)%n;
+  let shown=-1;
+  const apply=(extra=0)=>{
+    ring.style.transform=`translateZ(${-R}px) rotateY(${-rot*A+extra}deg)`;
+    const f=front(); S.slide[S.lang]=rot;
+    cards.forEach((c,i)=>{const d=Math.min((i-f+n)%n,(f-i+n)%n);
+      c.classList.toggle("front",d===0);c.classList.toggle("side",d===1);c.classList.toggle("far",d>1)});
+    dots.forEach((d,j)=>d.setAttribute("aria-current",String(j===f)));
+    if(f!==shown){shown=f;$("#stage-info").innerHTML=stageInfo(f);$("#stage-info [data-start]")?.addEventListener("click",()=>startLevel(f))}
+  };
+  const go=i=>{let d=((i-front())%n+n)%n;if(d>n/2)d-=n;rot=Math.round(rot)+d;apply()};
+  const step=d=>{rot=Math.round(rot)+d;apply()};
+  ring.classList.add("instant"); apply(); requestAnimationFrame(()=>requestAnimationFrame(()=>ring.classList.remove("instant")));
+  dots.forEach((d,j)=>d.onclick=()=>go(j));
+  $("#prev").onclick=()=>step(-1); $("#next-slide").onclick=()=>step(1);
+  wrap.onkeydown=e=>{if(e.key==="ArrowRight"){e.preventDefault();step(1)}if(e.key==="ArrowLeft"){e.preventDefault();step(-1)}};
+  // drag / swipe to spin
+  let sx=null,dx=0,moved=false;const DEG=.35;
+  wrap.onpointerdown=e=>{if(e.button!==0)return;sx=e.clientX;dx=0;moved=false};
+  wrap.onpointermove=e=>{if(sx==null)return;dx=e.clientX-sx;
+    if(!moved&&Math.abs(dx)>8){moved=true;ring.classList.add("dragging");try{wrap.setPointerCapture(e.pointerId)}catch(_){}}
+    if(moved)apply(dx*DEG)};
+  const end=()=>{if(sx==null)return;sx=null;ring.classList.remove("dragging");
+    if(moved){const deg=dx*DEG;let k=Math.round(deg/A);if(!k&&Math.abs(deg)>10)k=Math.sign(deg);rot=Math.round(rot)-k;apply()}};
+  wrap.onpointerup=end; wrap.onpointercancel=end;
+  wrap.addEventListener("click",e=>{
+    if(moved){e.stopPropagation();e.preventDefault();moved=false;return}
+    const c=e.target.closest(".card3d"); if(!c)return;
+    if(c.classList.contains("front")){const b=$("#stage-info [data-start]");if(b)b.click()} else go(+c.dataset.i);
+  },true);
+  // turn on its own, like a display stand; any touch pauses it for a while
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
+    let idleUntil=0; const hold=()=>{idleUntil=Date.now()+6000};
+    wrap.addEventListener("pointerdown",hold); wrap.addEventListener("keydown",hold);
+    $("#stage-info").addEventListener("pointerdown",hold); $(".ring-ctl").addEventListener("pointerdown",hold);
+    ringTimer=setInterval(()=>{if(sx==null&&Date.now()>idleUntil&&document.visibilityState==="visible"&&!wrap.matches(":hover")&&!$("#stage-info").matches(":hover"))step(1)},3200);
+  }
+}
+
+/* ============================================================
+   Events
+   ============================================================ */
+function bind(){
+  document.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>startLevel(+b.dataset.start));
+  document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{S.lang=b.dataset.lang;store.set("dict.lang",S.lang);render()});
+  setupRing();
+  bindLive();
+  document.querySelectorAll("[data-lb]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.lb.split(":");LB[k]=v;LB.rows=null;loadRank()});
+  $("#lb-refresh")&&($("#lb-refresh").onclick=loadRank);
+  const nf=$("#name-form"); if(nf){nf.onsubmit=e=>{e.preventDefault();saveName()};const n=$("#nick");n.focus();n.setSelectionRange(n.value.length,n.value.length)}
+  $("#name-cancel")&&($("#name-cancel").onclick=()=>{S.view="home";render()});
+  document.querySelectorAll("[data-player]").forEach(b=>b.onclick=()=>saveName(b.dataset.player));
+  $("#speak")&&($("#speak").onclick=()=>sayCurrent(false));
+  $("#slow")&&($("#slow").onclick=()=>sayCurrent(true));
+  $("#peek")&&($("#peek").onclick=()=>{const g=S.game,box=$("#peekbox");g.peeked[g.pos]=true;box.textContent=word(g,g.pos);box.hidden=false;setTimeout(()=>{box.hidden=true},1300);$("#answer")?.focus()});
+  $("#advance")&&($("#advance").onclick=advance);
+  const vc=$("#voicecfg"); if(vc){
+    vc.ontoggle=()=>{S.voiceOpen=vc.open};
+    const lang=S.game.lang;
+    $("#voice-sel")&&($("#voice-sel").onchange=e=>{VOICE.pref[lang]=e.target.value;store.set("dict.voice",VOICE.pref);sayCurrent(false)});
+    $("#rate").oninput=e=>{VOICE.rate[lang]=+e.target.value;$("#rate-val").textContent=(+e.target.value).toFixed(2)+"×"};
+    $("#rate").onchange=()=>{store.set("dict.rate",VOICE.rate);sayCurrent(false)};
+    $("#voice-test").onclick=()=>sayCurrent(false);
+  }
+  $("#back")&&($("#back").onclick=goBack);
+  $("#answer")&&($("#answer").onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();advance()}});
+  $("#quit")&&($("#quit").onclick=()=>{hush();S.view="home";render()});
+  $("#retry")&&($("#retry").onclick=()=>{S.lang=S.game.lang;startLevel(S.game.i)});
+  $("#nextlvl")&&($("#nextlvl").onclick=()=>{S.lang=S.game.lang;startLevel(S.game.i+1)});
+  $("#home")&&($("#home").onclick=()=>{S.view="home";render()});
+}
+if(ONLINE){$("#nav-rank").hidden=false;$("#nav-live").hidden=false}
+if(ONLINE&&/^\d{6}$/.test(QS.get("pin")||"")){S.livePin=QS.get("pin");S.view="live"}
+$("#who").onclick=()=>{hush();S.view="name";render()};
+function setMenu(open){$("header").classList.toggle("open",open);$("#burger").setAttribute("aria-expanded",String(open));$("#burger").setAttribute("aria-label",open?"ปิดเมนู":"เปิดเมนู")}
+// light / dark: follows the device until the player picks one
+const SUN=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>`;
+const MOON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>`;
+function isDark(){const a=document.documentElement.getAttribute("data-theme");return a?a==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
+function applyTheme(){
+  const t=store.get("dict.theme",null); if(t) document.documentElement.setAttribute("data-theme",t);
+  const d=isDark(), b=$("#theme-btn");
+  b.innerHTML=(d?SUN:MOON)+`<span class="tl">${d?"โหมดสว่าง":"โหมดมืด"}</span>`;
+  b.setAttribute("aria-label",d?"เปลี่ยนเป็นโหมดสว่าง":"เปลี่ยนเป็นโหมดมืด"); b.title=b.getAttribute("aria-label");
+}
+$("#theme-btn").onclick=()=>{store.set("dict.theme",isDark()?"light":"dark");applyTheme()};
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyTheme)}catch(e){}
+applyTheme();
+$("#burger").onclick=()=>setMenu(!$("header").classList.contains("open"));
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{hush();S.view=b.dataset.view;render()});
+
+render();
+initShared();
+</script>
+
+</body>
+</html>
