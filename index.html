@@ -201,6 +201,11 @@ main{padding-block:20px}
 .voicecfg input[type=range]{width:100%;accent-color:var(--ink)}
 .voicecfg .btn{justify-self:start}
 
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;width:min(440px,calc(100% - 32px));
+  background:var(--ink);color:var(--paper);border-radius:14px;padding:12px 14px;display:grid;gap:6px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);font-size:.9rem}
+.toast b{font-family:var(--f-display);font-size:1rem;line-height:1.7}
+.toast .btn{justify-self:end;background:transparent;color:var(--paper);border-color:var(--paper);padding:4px 12px}
+
 /* results */
 .result{text-align:center;padding:24px 18px 8px;display:grid;gap:12px;justify-items:center}
 .circled{font-family:var(--f-display);font-weight:700;color:var(--margin);font-size:2.4rem;border:3px solid var(--margin);border-radius:50%;padding:10px 22px;transform:rotate(-6deg);font-variant-numeric:tabular-nums}
@@ -1040,8 +1045,11 @@ function speak(text,lang,slow){
     const r=VOICE.rate[lang]||0.85; u.rate=slow?Math.max(0.4,r*0.65):r; u.pitch=1; u.volume=1;
     const b=$("#speak"); if(b)b.classList.add("playing");
     SFX.duck(true);
+    let started=false; u.onstart=()=>{started=true;speechToast(false)};
     u.onend=u.onerror=()=>{const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
     speechSynthesis.speak(u);
+    // some browsers (Brave with Shields up, missing voices) accept the call and stay silent
+    setTimeout(()=>{if(!started){SFX.duck(false);const b=$("#speak");if(b)b.classList.remove("playing");speechToast(true)}},2500);
   },90);
 }
 function voicePanel(lang){
@@ -1058,6 +1066,16 @@ function voicePanel(lang){
       <p class="muted" style="margin:0;font-size:.82rem">ถ้าเสียงเพี้ยน ลองเปลี่ยนเสียงที่มีคำว่า Enhanced, Premium หรือ Google จะชัดกว่า</p>
     </div>
   </details>`;
+}
+function speechToast(show){
+  let t=$("#speech-toast");
+  if(!show){if(t)t.hidden=true;return}
+  if(!t){t=document.createElement("div");t.id="speech-toast";t.className="toast";t.setAttribute("role","alert");document.body.appendChild(t)}
+  const isBrave=!!navigator.brave;
+  t.innerHTML=`<b>เบราว์เซอร์นี้ไม่ยอมอ่านคำออกเสียง</b>
+    <span>${isBrave?"Brave ปิดเสียงอ่านไว้: กดรูปสิงโตข้างช่องที่อยู่ แล้วปิด Shields ของเว็บนี้ จากนั้นรีเฟรช":"ลองเปิดด้วย Chrome หรือ Safari และเช็กว่าเครื่องมีเสียงอ่าน"+"ภาษาไทย/อังกฤษ"}</span>
+    <button class="btn" type="button" id="toast-x">ปิด</button>`;
+  t.hidden=false; $("#toast-x").onclick=()=>{t.hidden=true};
 }
 function hush(){try{speechSynthesis.cancel()}catch(e){}}
 
