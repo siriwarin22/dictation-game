@@ -1042,7 +1042,7 @@ function speak(text,lang,slow){
 }
 function speakTTS(text,lang,slow){
   if(!("speechSynthesis" in window))return;
-  try{speechSynthesis.cancel()}catch(e){}
+  try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}
   const u=new SpeechSynthesisUtterance(text);
   const v=voiceFor(lang); if(v){try{u.voice=v}catch(e){}}
   u.lang=v?v.lang:LOCALE[lang]; const r=VOICE.rate[lang]||0.9; u.rate=slow?Math.max(0.4,r*0.62):r;
@@ -1052,7 +1052,7 @@ function speakTTS(text,lang,slow){
   let started=false; u.onstart=()=>{started=true;speechToast(false)};
   u.onend=u.onerror=done;
   speechSynthesis.speak(u);
-  setTimeout(()=>{if(!started){done();speechToast(true)}},4000);   // only tells the player; changes nothing
+  setTimeout(()=>{if(!started){done();speechToast(true,speechSynthesis.speaking)}},4000);   // only tells the player; changes nothing
 }
 function voicePanel(lang){
   const vs=voicesFor(lang), cur=voiceFor(lang);
@@ -1069,12 +1069,14 @@ function voicePanel(lang){
     </div>
   </details>`;
 }
-function speechToast(show){
+function speechToast(show,stuck){
   let t=$("#speech-toast");
   if(!show){if(t)t.hidden=true;return}
   if(!t){t=document.createElement("div");t.id="speech-toast";t.className="toast";t.setAttribute("role","alert");document.body.appendChild(t)}
   const isBrave=!!navigator.brave;
-  t.innerHTML=`<b>เบราว์เซอร์นี้ไม่ยอมอ่านคำออกเสียง</b>
+  t.innerHTML=stuck?`<b>ระบบเสียงอ่านของเบราว์เซอร์ค้าง</b>
+    <span>ปิดเบราว์เซอร์ให้สนิท (Mac กด Cmd+Q) แล้วเปิดใหม่ เสียงจะกลับมา</span>
+    <button class="btn" type="button" id="toast-x">ปิด</button>`:`<b>เบราว์เซอร์นี้ไม่ยอมอ่านคำออกเสียง</b>
     <span>ลองเปลี่ยนเสียงใน "ตั้งค่าเสียงอ่าน" หรือเปิดด้วย Safari / Chrome${isBrave?" (ใน Brave ลองปิด Shields ของเว็บนี้)":""}</span>
     <button class="btn" type="button" id="toast-x">ปิด</button>`;
   t.hidden=false; $("#toast-x").onclick=()=>{t.hidden=true};
