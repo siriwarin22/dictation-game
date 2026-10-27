@@ -1212,6 +1212,19 @@ function hasVoice(lang){return REC.ids.size>0 || ("speechSynthesis" in window &&
 const REC={ids:new Set(),el:null};
 function wordId(lang,w){let h=0x811c9dc5;for(const ch of lang+":"+w){h^=ch.codePointAt(0);h=Math.imul(h,0x01000193)>>>0}return lang+"_"+h.toString(16).padStart(8,"0")}
 fetch("audio/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(m=>{if(m&&Array.isArray(m.ids))REC.ids=new Set(m.ids.map(String))}).catch(()=>{});
+// iPhone and in-app browsers (Messenger, LINE…) only let an <audio> element play after a tap;
+// prime the one shared element on the first touch so later words (even ones a timer or the
+// network starts) play without another tap
+const SILENT="data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";   // 50 ms of silence
+function primeAudio(){
+  if(REC.primed) return;
+  const a=REC.el||(REC.el=new Audio());
+  if(!a.paused) return;                     // a word is playing: it is already unlocked, leave it alone
+  REC.primed=true;
+  // only a refusal means "still locked"; an abort just means a word took over the element first
+  try{a.src=SILENT;a.play().then(()=>{if(a.src===SILENT)a.pause()}).catch(e=>{if(e&&e.name==="NotAllowedError")REC.primed=false})}catch(e){REC.primed=false}
+}
+["pointerdown","keydown","touchend"].forEach(ev=>addEventListener(ev,primeAudio,{capture:true,passive:true}));
 function speak(text,lang,slow){
   const id=wordId(lang,text);
   if(!REC.ids.has(id)) return speakTTS(text,lang,slow);
