@@ -9,7 +9,7 @@ create table if not exists public.rounds (
   name        text        not null check (char_length(btrim(name)) between 1 and 24),
   room        text                 check (room is null or room ~ '^[A-Z0-9-]{2,12}$'),
   lang        text        not null check (lang in ('th','en')),
-  stage       smallint    not null check (stage between 1 and 6),
+  stage       smallint    not null check (stage between 1 and 30),
   correct     smallint    not null check (correct between 0 and 10),
   points      smallint    not null check (points between 0 and 200),
   created_at  timestamptz not null default now()
@@ -67,3 +67,7 @@ language sql stable security definer set search_path = public as $$
   limit least(greatest(coalesce(p_limit, 50), 1), 100);
 $$;
 grant execute on function public.leaderboard(text, text, timestamptz, int) to anon, authenticated;
+
+-- Upgrade for databases created before stages 7–11 existed (safe to run more than once):
+alter table public.rounds drop constraint if exists rounds_stage_check;
+alter table public.rounds add constraint rounds_stage_check check (stage between 1 and 30);

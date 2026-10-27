@@ -209,6 +209,10 @@ main{padding-block:20px}
 
 .fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
 
+.clue{margin:0 18px;padding:8px 12px;border-radius:10px;background:var(--paper-2);border-left:4px solid var(--pencil);font-size:.95rem;line-height:1.7;text-align:left}
+.clue b{font-family:var(--f-display);margin-right:6px}
+.lstage .clue{margin:0;width:min(460px,100%)}
+
 /* results */
 .result{text-align:center;padding:24px 18px 8px;display:grid;gap:12px;justify-items:center}
 .circled{font-family:var(--f-display);font-weight:700;color:var(--margin);font-size:2.4rem;border:3px solid var(--margin);border-radius:50%;padding:10px 22px;transform:rotate(-6deg);font-variant-numeric:tabular-nums}
@@ -609,6 +613,180 @@ const BANK = {
 ลักษณนาม|คำบอกลักษณะของนาม · classifier
 โลกาภิวัตน์|กระแสโลกที่เชื่อมถึงกัน (ไม่ใช่ วัฒน์) · globalization
 จุลินทรีย์|สิ่งมีชีวิตเล็กมาก · microorganism`},
+    {title:"ด่านราชาศัพท์", sub:"คำที่ใช้กับพระมหากษัตริย์และพระบรมวงศานุวงศ์", bank:`
+พระบรมราโชวาท|คำสั่งสอนของพระมหากษัตริย์
+พระราชดำรัส|คำพูดของพระมหากษัตริย์
+พระราชหัตถเลขา|จดหมายของพระมหากษัตริย์
+พระราชวัง|ที่ประทับของพระมหากษัตริย์
+พระที่นั่ง|อาคารหรือที่นั่งที่ประทับ
+เสด็จพระราชดำเนิน|เดินทางไป (พระมหากษัตริย์)
+ประทับ|อยู่ นั่ง
+บรรทม|นอน
+เสวย|กิน
+สรง|อาบน้ำ
+ทรงพระสำราญ|สบายดี มีความสุข
+ประชวร|ป่วย
+สวรรคต|ตาย (พระมหากษัตริย์)
+พระเนตร|ตา
+พระกรรณ|หู
+พระนาสิก|จมูก
+พระหัตถ์|มือ
+พระบาท|เท้า
+พระเกศา|ผม
+พระทนต์|ฟัน
+พระโอษฐ์|ปาก
+พระขนง|คิ้ว
+พระปราง|แก้ม
+พระอุระ|อก
+พระชนก|พ่อ
+พระชนนี|แม่
+พระเชษฐา|พี่ชาย
+พระขนิษฐา|น้องสาว
+พระราชโอรส|ลูกชาย
+พระราชธิดา|ลูกสาว
+พระภูษา|ผ้านุ่ง เครื่องนุ่งห่ม
+ฉลองพระองค์|เสื้อ
+พระสุธารส|น้ำดื่ม
+เครื่องเสวย|อาหาร
+พระแท่นบรรทม|เตียงนอน
+พระฉาย|กระจกส่องหน้า
+พระราชทาน|ให้ (พระมหากษัตริย์)
+ทอดพระเนตร|ดู
+ทรงพระอักษร|เรียน อ่าน เขียนหนังสือ
+พระราชกรณียกิจ|งานที่ทรงทำ`},
+    {title:"ด่านบาลี-สันสกฤต", sub:"คำคู่จากภาษาบาลีและสันสกฤต", bank:`
+กิริยา|การกระทำ (บาลี) · คู่กับ กริยา (สันสกฤต)
+กริยา|คำแสดงการกระทำ (สันสกฤต) · คู่กับ กิริยา (บาลี)
+ธัมมะ|คำสอน (บาลี) · คู่กับ ธรรม (สันสกฤต)
+ธรรม|คำสอน ความถูกต้อง (สันสกฤต) · คู่กับ ธัมมะ (บาลี)
+กัมมะ|การกระทำ (บาลี) · คู่กับ กรรม (สันสกฤต)
+กรรม|การกระทำ ผลของการกระทำ (สันสกฤต)
+มัจฉา|ปลา (บาลี) · คู่กับ มัตสยา (สันสกฤต)
+มัตสยา|ปลา (สันสกฤต) · คู่กับ มัจฉา (บาลี)
+สัจจะ|ความจริง (บาลี) · คู่กับ สัตย์ (สันสกฤต)
+สัตย์|ความจริง (สันสกฤต) · คู่กับ สัจจะ (บาลี)
+วิชา|ความรู้ (บาลี) · คู่กับ วิทยา (สันสกฤต)
+วิทยา|ความรู้ (สันสกฤต) · คู่กับ วิชา (บาลี)
+เขต|แดน พื้นที่ (บาลี) · คู่กับ เกษตร (สันสกฤต)
+เกษตร|ที่ดิน การเพาะปลูก (สันสกฤต) · คู่กับ เขต (บาลี)
+อัคคี|ไฟ (บาลี) · คู่กับ อัคนี (สันสกฤต)
+อัคนี|ไฟ (สันสกฤต) · คู่กับ อัคคี (บาลี)
+รัฐ|แว่นแคว้น ประเทศ (บาลี)
+ราษฎร|พลเมือง (สันสกฤต)
+ปัจฉิม|ทิศตะวันตก ข้างหลัง (บาลี) · คู่กับ ปัศจิม (สันสกฤต)
+ปัศจิม|ทิศตะวันตก (สันสกฤต) · คู่กับ ปัจฉิม (บาลี)
+สิกขา|การศึกษา (บาลี) · คู่กับ ศึกษา (สันสกฤต)
+นิจ|เสมอ (บาลี) · คู่กับ นิตย์ (สันสกฤต)
+นิตย์|เสมอ เป็นประจำ (สันสกฤต) · คู่กับ นิจ (บาลี)
+ภริยา|เมีย (บาลี) · คู่กับ ภรรยา (สันสกฤต)
+ภรรยา|เมีย (สันสกฤต) · คู่กับ ภริยา (บาลี)
+อาจริยะ|ครู (บาลี) · คู่กับ อาจารย์ (สันสกฤต)
+มัชฌิม|ท่ามกลาง (บาลี) · คู่กับ มัธยม (สันสกฤต)
+มัธยม|ท่ามกลาง ระดับกลาง (สันสกฤต) · คู่กับ มัชฌิม (บาลี)
+ฐาน|ที่ตั้ง (บาลี) · คู่กับ สถาน (สันสกฤต)
+สถาน|ที่ตั้ง (สันสกฤต) · คู่กับ ฐาน (บาลี)
+ทิฐิ|ความเห็น (บาลี) · คู่กับ ทฤษฎี (สันสกฤต)
+เวช|การรักษาโรค (บาลี) · คู่กับ แพทย์ (สันสกฤต)
+แพทย์|หมอ (สันสกฤต) · คู่กับ เวช (บาลี)
+บุญ|ความดี (บาลี) · คู่กับ ปุณย์ (สันสกฤต)
+ปุณย์|ความดี (สันสกฤต) · คู่กับ บุญ (บาลี)
+อิทธิ|อำนาจพิเศษ (บาลี) · คู่กับ ฤทธิ์ (สันสกฤต)
+ฤทธิ์|อำนาจพิเศษ (สันสกฤต) · คู่กับ อิทธิ (บาลี)
+สุริยะ|ดวงอาทิตย์ (บาลี) · คู่กับ สูรย์ (สันสกฤต)
+สูรย์|ดวงอาทิตย์ (สันสกฤต) · คู่กับ สุริยะ (บาลี)
+ขณะ|ชั่วเวลาหนึ่ง (บาลี)`},
+    {title:"ด่านคำทับศัพท์", sub:"คำยืมภาษาอังกฤษ สะกดตามราชบัณฑิตยสภา", bank:`
+อินเทอร์เน็ต|internet · เครือข่ายเชื่อมคอมพิวเตอร์ทั่วโลก
+ซอฟต์แวร์|software · โปรแกรมคอมพิวเตอร์
+ฮาร์ดแวร์|hardware · อุปกรณ์คอมพิวเตอร์
+แอปพลิเคชัน|application · โปรแกรมในมือถือ
+เว็บไซต์|website
+ออนไลน์|online · เชื่อมต่ออินเทอร์เน็ต
+ดิจิทัล|digital
+เทคโนโลยี|technology
+แบตเตอรี่|battery · ถ่านไฟฉาย
+ไมโครเวฟ|microwave · เตาอบไฟฟ้า
+ลิฟต์|lift · ลิฟต์ขึ้นลงอาคาร
+คลินิก|clinic · สถานพยาบาลขนาดเล็ก
+แคลอรี|calorie · หน่วยพลังงานในอาหาร
+ไวรัส|virus · เชื้อโรคขนาดเล็กมาก
+แบคทีเรีย|bacteria · จุลินทรีย์เซลล์เดียว
+วิตามิน|vitamin
+โปรตีน|protein
+ออกซิเจน|oxygen · ก๊าซที่ใช้หายใจ
+คาร์บอนไดออกไซด์|carbon dioxide
+ฟุตบอล|football
+บาสเกตบอล|basketball
+โอลิมปิก|Olympic
+แชมเปียน|champion · ผู้ชนะเลิศ
+ซูเปอร์มาร์เก็ต|supermarket
+แฮมเบอร์เกอร์|hamburger
+พิซซา|pizza
+สปาเกตตี|spaghetti
+กีตาร์|guitar
+เปียโน|piano
+ไวโอลิน|violin
+แจ๊ส|jazz · ดนตรีแจ๊ส
+ฟิล์ม|film
+วิดีโอ|video
+เทนนิส|tennis
+แบดมินตัน|badminton
+ยิมนาสติก|gymnastics
+มาราธอน|marathon · วิ่งระยะไกล
+อัลบั้ม|album
+โบนัส|bonus · เงินรางวัลพิเศษ
+เซลล์|cell · หน่วยเล็กที่สุดของสิ่งมีชีวิต`},
+    {title:"ด่านคำพ้องรูป", sub:"เขียนเหมือนกัน แต่อ่านและแปลต่างกัน", bank:`
+เพลา|อ่าน เพ-ลา = เวลา · อ่าน เพลา = แกนล้อรถ
+สระ|อ่าน สะ-หระ = เสียงสระ · อ่าน สะ = บ่อน้ำ
+เสลา|อ่าน สะ-เหลา = ชื่อต้นไม้ · อ่าน เส-ลา = หิน
+ปรามาส|อ่าน ปฺรา-มาด = ดูหมิ่น · อ่าน ปะ-รา-มาด = จับต้อง
+โสน|อ่าน สะ-โหน = ต้นไม้ดอกสีเหลือง · อ่าน โส-นะ = สุนัข
+ครุ|อ่าน คะ-รุ = เสียงหนัก · อ่าน ครุ = ภาชนะตักน้ำ
+พยาธิ|อ่าน พะ-ยาด = ตัวพยาธิในท้อง · อ่าน พะ-ยา-ทิ = ความเจ็บไข้
+ตากลม|อ่าน ตาก-ลม = ออกไปรับลม · อ่าน ตา-กลม = ตารูปกลม
+กรมการ|อ่าน กฺรม-มะ-กาน = คณะบุคคลที่ทำงานร่วมกัน · อ่าน กฺรม-กาน = งานของกรม`, hint:false},
+    {title:"ด่านคำพ้องเสียง", sub:"เสียงเหมือนกัน แต่เขียนต่างกัน · มีคำใบ้ความหมาย", hint:true, bank:`
+การ|งาน กิจธุระ (เช่น ทำ___บ้าน)
+กาล|เวลา (เช่น ___ครั้งหนึ่งนานมาแล้ว)
+กานต์|เป็นที่รัก มักใช้ตั้งชื่อคน
+กาฬ|สีดำ (เช่น ___สินธุ์ ชื่อจังหวัด)
+จันทร์|ดวงไฟบนฟ้ายามค่ำ หรือวันแรกของสัปดาห์
+จัณฑ์|เหล้า (เช่น สุรา___)
+สรรค์|สร้าง (เช่น สร้าง___)
+สรร|เลือก (เช่น คัด___)
+ศัลย์|ผ่าตัด (เช่น ___แพทย์)
+สันต์|สงบ
+สัน|แนวนูนตรงกลาง (เช่น ___หลัง ___เขา)
+ขันธ์|ส่วน หมวด (เช่น ประจวบคีรี___)
+ขรรค์|อาวุธดาบสองคม
+ขัน|ไก่ส่งเสียงตอนเช้า หรือภาชนะตักน้ำ
+พันธ์|เกี่ยวข้อง ผูกไว้ (เช่น สัม___)
+พันธุ์|เชื้อสาย (เช่น ___ไม้ ___สัตว์)
+พรรณ|สี ผิว ชนิด (เช่น ผิว___ ___ไม้)
+ภัณฑ์|สิ่งของ (เช่น พิพิธ___)
+ศร|ลูกธนู
+สอน|ถ่ายทอดความรู้
+กรรณ|หู
+กัณฑ์|ตอน บท (เช่น เทศน์ ๑ ___)
+ธาร|ลำน้ำ (เช่น ลำ___)
+ทาน|การให้ (เช่น ให้___)
+โจทย์|ปัญหาเลขที่ต้องแก้
+โจทก์|ผู้ฟ้องคดีในศาล
+บาตร|ภาชนะใส่อาหารของพระสงฆ์
+บาศ|เชือกบ่วง (เช่น ___บ่วง)
+บาท|หน่วยเงินไทย หรือเท้า
+ศาล|สถานที่ตัดสินคดี
+สาร|ข้อความ จดหมาย (เช่น ___คดี)
+สาน|ขัดไม้ไผ่ทำตะกร้า
+พาน|ภาชนะมีเชิง ใส่ดอกไม้ไหว้ครู
+พาล|เกเร ชั่วร้าย (เช่น คน___)
+ใส|ไม่ขุ่น มองทะลุได้
+ไส|ดันไปข้างหน้า (เช่น ___กบ ___ไม้)
+ครรภ์|ท้องที่มีลูกอยู่ข้างใน
+คัน|อาการอยากเกา
+พุธ|วันที่สี่ของสัปดาห์
+พุทธ|เกี่ยวกับพระศาสดาของศาสนาที่คนไทยส่วนใหญ่นับถือ (เช่น ___ศาสนา)`}
   ],
   en: [
     {title:"Everyday words", sub:"Common words, grade 5", bank:`
@@ -859,18 +1037,18 @@ acquiesce|ยินยอม
 kaleidoscope|กล้องสลับลาย`},
   ]
 };
-const ROUND = 10;   // words per round
+const ROUND = 10;   // words per round (fewer when a stage has a smaller bank)
 // parse the bank into LEVELS[lang][i].items (words) and MEAN[word]
 const MEAN = {};
 const LEVELS = Object.fromEntries(Object.entries(BANK).map(([lang,stages])=>[lang,stages.map(st=>({
-  title:st.title, sub:st.sub,
+  title:st.title, sub:st.sub, hint:!!st.hint,
   items:st.bank.trim().split("\n").map(line=>{const [w,m]=line.split("|").map(x=>x.trim());MEAN[w]=m||"";return w})
 }))]));
 const LOCK=`<svg class="lockic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 10.5V7.8a4.5 4.5 0 0 1 9 0v2.7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11.5" rx="3" fill="currentColor"/><circle cx="12" cy="15" r="1.7" fill="var(--keyhole,#22305A)"/><rect x="11.1" y="15.5" width="1.8" height="3" rx=".9" fill="var(--keyhole,#22305A)"/></svg>`;
 const lockedArt=(b,size)=>`<span class="bwrap">${badgeArt(b,size,false)}<span class="padlock" style="--keyhole:var(--ink)">${LOCK}</span></span>`;
 const LANG = {th:{label:"ไทย",voice:"th"}, en:{label:"English",voice:"en"}};
 const PTS = 20;                                   // points per correct word
-const STAGE_AT = [0,100,240,420,640,900];         // language points needed to open each stage
+const STAGE_AT = [0,100,240,420,640,900,1100,1300,1500,1700,1900];   // language points needed to open each stage
 
 /* ============================================================
    BADGES — unlocked by total points (both languages).
@@ -883,6 +1061,7 @@ const BADGES = [
   {id:"b4", name:"นิ้วติดเทอร์โบ",          at:1000, img:"badges/b4-turbo.webp"},
   {id:"b5", name:"บุญเก่าล้วนๆ",           at:1500, img:"badges/b5-merit.webp"},
   {id:"b6", name:"ชีเสิร์ฟเกิน",            at:2000, img:"badges/b6-serve.webp"},
+  {id:"b7", name:"ลูกพ่อขุนรามคำแหง",      at:3000, img:null, master:true},   // ระดับปรมาจารย์
 ];
 
 function badgeArt(b, size, earned, cls=""){
@@ -950,7 +1129,8 @@ const total=p=>num(p.points.th)+num(p.points.en);
 const stageOpen=(lang,i)=>num(S.prog.points[lang])>=STAGE_AT[i];
 const earnedBadges=t=>BADGES.filter(b=>t>=b.at);
 const nextBadge=t=>BADGES.find(b=>t<b.at);
-const starsFor=c=>c>=10?3:c>=8?2:c>=6?1:0;
+const roundSize=(lang,i)=>Math.min(ROUND,(LEVELS[lang][i]||{items:[]}).items.length);
+const starsFor=(c,n=10)=>c>=n?3:c>=n*.8?2:c>=n*.6?1:0;
 const starHTML=st=>`<span class="stars" aria-label="${st} ดาว">${"★".repeat(st)}<span class="off">${"★".repeat(3-st)}</span></span>`;
 
 // private per-viewer store: data/users/<id>/<pid> holds a player's save, data/users/<id>/<pid>/plays their rounds
@@ -960,13 +1140,13 @@ function mergeProgress(d){
   if(!d) return;
   const pts=d.points||d;
   for(const l of ["th","en"]) S.prog.points[l]=Math.max(num(S.prog.points[l]),num(pts[l]));
-  if(d.best&&typeof d.best==="object") for(const [k,v] of Object.entries(d.best)) if(/^(th|en)-[1-6]$/.test(k)) S.prog.best[k]=Math.max(num(S.prog.best[k]),Math.min(10,num(v)));
+  if(d.best&&typeof d.best==="object") for(const [k,v] of Object.entries(d.best)) if(/^(th|en)-\d{1,2}$/.test(k)) S.prog.best[k]=Math.max(num(S.prog.best[k]),Math.min(10,num(v)));
   // a deck from another device fills in stages this device hasn't started
-  if(d.deck&&typeof d.deck==="object"){S.prog.deck=S.prog.deck||{};for(const [k,v] of Object.entries(d.deck)) if(/^(th|en)-[1-6]$/.test(k)&&Array.isArray(v)&&!S.prog.deck[k]) S.prog.deck[k]=v.filter(w=>typeof w==="string").slice(0,200)}
+  if(d.deck&&typeof d.deck==="object"){S.prog.deck=S.prog.deck||{};for(const [k,v] of Object.entries(d.deck)) if(/^(th|en)-\d{1,2}$/.test(k)&&Array.isArray(v)&&!S.prog.deck[k]) S.prog.deck[k]=v.filter(w=>typeof w==="string").slice(0,200)}
 }
 function cleanPlay(r){
   if(!r||typeof r!=="object"||!/^(th|en)$/.test(r.lang)||!Array.isArray(r.items)) return null;
-  return {id:String(r.id||""),at:String(r.at||""),lang:r.lang,i:Math.min(5,num(r.i)),correct:Math.min(10,num(r.correct)),n:Math.min(10,num(r.n))||10,gain:num(r.gain),
+  return {id:String(r.id||""),at:String(r.at||""),lang:r.lang,i:Math.min(40,num(r.i)),correct:Math.min(10,num(r.correct)),n:Math.min(10,num(r.n))||10,gain:num(r.gain),
     items:r.items.slice(0,10).map(x=>({w:String(x?.w||""),a:String(x?.a||"").slice(0,120),ok:!!x?.ok}))};
 }
 async function initShared(){
@@ -1344,7 +1524,8 @@ function hostCreate(cfg){
 }
 const hostRanking=()=>Object.entries(L.players).map(([pid,x])=>({pid,name:x.name,score:x.score})).sort((a,b)=>b.score-a.score);
 function hostLobby(){liveSend("lobby",{count:Object.keys(L.players).length,names:Object.values(L.players).map(x=>x.name).slice(0,40)})}
-const qPayload=()=>({n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000,w:encW(L.words[L.q]),lang:L.cfg.lang});
+const qPayload=()=>({n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000,w:encW(L.words[L.q]),lang:L.cfg.lang,
+  clue:LEVELS[L.cfg.lang][L.cfg.stage].hint?(MEAN[L.words[L.q]]||""):""});
 function hostState(){
   if(L.phase==="question") return {phase:"question",...qPayload()};
   if(L.phase==="reveal") return {phase:"reveal",...L.lastReveal};
@@ -1433,7 +1614,7 @@ function playerMsg(ev,p){
   if(ev==="lobby"){if(num(p.count)>L.count&&L.phase==="lobby")SFX.join();L.count=num(p.count);L.names=Array.isArray(p.names)?p.names.map(normName):[];if(L.phase==="end"){L.score=0;L.phase="lobby"}if(L.phase==="lobby")liveRender()}
   else if(ev==="q"){const fresh=L.n!==num(p.n)||L.phase!=="question";
     L.phase="question";L.n=num(p.n);L.total=num(p.total);L.dur=num(p.dur)||num(p.left)||1;L.endsAt=Date.now()+num(p.left);
-    L.w=p.w?decW(p.w):"";L.wlang=p.lang==="en"?"en":"th";
+    L.w=p.w?decW(p.w):"";L.wlang=p.lang==="en"?"en":"th";L.clue=String(p.clue||"").slice(0,200);
     if(fresh){L.sent=false;L.timeUp=false;L.ans=""}
     liveRender();setTimeout(()=>$("#live-ans")?.focus(),60); if(fresh)SFX.go();
     if(fresh&&L.w) setTimeout(()=>{if(L&&L.phase==="question")speak(L.w,L.wlang,false)},500)}
@@ -1451,8 +1632,10 @@ function joinURL(pin){return location.href.split(/[?#]/)[0]+"?pin="+pin}
 const timerHTML=()=>`<div class="ltimer"><b id="lt-num">–</b><div class="bar"><i id="lt-bar" style="width:100%"></i></div></div>`;
 // the question screen is the same for whoever created the room and whoever joined it
 function questionHTML(n,total,score){
+  const clue=isHost()?(LEVELS[L.cfg.lang][L.cfg.stage].hint?MEAN[L.words[L.q]]||"":""):L.clue;
   return `<p class="eyebrow">ข้อ ${n+1} / ${total} · ${score.toLocaleString()} คะแนน</p>
     ${timerHTML()}
+    ${clue?`<div class="clue"><b>คำใบ้</b> ${esc(clue)}</div>`:""}
     ${L.sent?`<h2>ส่งแล้ว!</h2><div class="bigname">${esc(L.ans)}</div><p class="muted">รอเพื่อนคนอื่น…</p>`
       :L.timeUp?`<h2>หมดเวลา</h2><p class="muted">รอเฉลย…</p>`
       :`${hasVoice(curLang())?"":`<div class="notice" style="margin:0;text-align:left">เบราว์เซอร์นี้ไม่มีเสียงอ่าน${curLang()==="th"?"ภาษาไทย":"ภาษาอังกฤษ"} ถ้าใช้ Brave ให้กดรูปสิงโตแล้วปิด Shields ของเว็บนี้ หรือเปิดด้วย Chrome / Safari</div>`}
@@ -1653,7 +1836,7 @@ function viewHome(){
         <span class="lv">${i+1}</span>
         ${open?`<span class="word">${esc(lv.items[0])}</span>`:`<span class="biglock" style="--keyhole:#22305A">${LOCK}</span>`}
         <span class="ttl">${esc(lv.title)}</span>
-        <span class="dots6">${Array.from({length:6},(_,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</span>
+        <span class="dots6">${L.map((_,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</span>
         ${open?"":`<span class="lockpill" style="--keyhole:#22305A">${LOCK} ล็อก</span>`}
       </div>
       <div class="face back" style="--keyhole:#22305A"><span class="blabel">ด่าน</span><span class="bnum">${i+1}</span>${open?"":LOCK}</div>
@@ -1683,10 +1866,10 @@ function viewHome(){
 function stageInfo(i){
   const L=LEVELS[S.lang], lv=L[i], open=stageOpen(S.lang,i), best=num(S.prog.best[key(S.lang,i)]), lp=num(S.prog.points[S.lang]);
   return `<div class="fade-in" style="display:grid;justify-items:center;gap:6px;width:100%">
-    <span class="eyebrow">ด่าน ${i+1} / ${L.length} · สุ่ม ${ROUND} คำจากคลัง ${lv.items.length} คำ · คำละ ${PTS} คะแนน</span>
+    <span class="eyebrow">ด่าน ${i+1} / ${L.length} · สุ่ม ${roundSize(S.lang,i)} คำจากคลัง ${lv.items.length} คำ · คำละ ${PTS} คะแนน</span>
     <h2>${esc(lv.title)}</h2>
     <span class="sub">${esc(lv.sub)}</span>
-    ${open?`${starHTML(starsFor(best))}<button class="btn primary start" data-start="${i}">${best?"เล่นอีกครั้ง":"เริ่ม"}</button>`
+    ${open?`${starHTML(starsFor(best,roundSize(S.lang,i)))}<button class="btn primary start" data-start="${i}">${best?"เล่นอีกครั้ง":"เริ่ม"}</button>`
       :`<span class="lockline" style="--keyhole:var(--paper)">${LOCK} สะสมคะแนน${LANG[S.lang].label}อีก ${STAGE_AT[i]-lp} คะแนนเพื่อเปิดด่านนี้</span>
         <div class="bar"><i style="width:${Math.round(lp/STAGE_AT[i]*100)}%"></i></div>`}
   </div>`;
@@ -1733,6 +1916,7 @@ function viewPlay(){
       <button class="btn" id="peek">${icon.eye} แอบดู</button>
       <span id="peekbox" class="peek" hidden></span>
     </div>
+    ${lv.hint&&MEAN[word(g,g.pos)]?`<div class="clue"><b>คำใบ้</b> ${esc(MEAN[word(g,g.pos)])}</div>`:""}
     ${voicePanel(g.lang)}
     <div class="lines">${lines}</div>
     <div class="controls">
@@ -1763,14 +1947,14 @@ function finishLevel(){
   const k=key(g.lang,g.i); S.prog.best[k]=Math.max(num(S.prog.best[k]),g.correct);
   const after=total(S.prog);
   g.newBadges=BADGES.filter(b=>before<b.at&&after>=b.at);
-  g.newStages=STAGE_AT.map((at,i)=>i).filter(i=>beforeLang<STAGE_AT[i]&&S.prog.points[g.lang]>=STAGE_AT[i]);
+  g.newStages=LEVELS[g.lang].map((_,i)=>i).filter(i=>beforeLang<STAGE_AT[i]&&S.prog.points[g.lang]>=STAGE_AT[i]);
   const play={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),at:new Date().toISOString(),lang:g.lang,i:g.i,
     correct:g.correct,n,gain:g.gain,items:g.answers.map((a,j)=>({w:word(g,j),a:a.slice(0,120),ok:g.marks[j]}))};
   S.hist.unshift(play); S.hist=S.hist.slice(0,100);
   saveProgress(play);
   submitRound(g);
   S.view="result"; render(); window.scrollTo({top:0});
-  if(g.correct>=6) setTimeout(()=>FX.show(g.correct===10?6000:3500,g.correct===10?5:3),300);
+  if(g.correct>=n*.6) setTimeout(()=>FX.show(g.correct===n?6000:3500,g.correct===n?5:3),300);
 }
 function answerRows(items){
   return `<div class="answers">${items.map((x,j)=>`<div class="ans">
@@ -1787,7 +1971,7 @@ function viewResult(){
     <div class="result">
       <span class="eyebrow">${LANG[g.lang].label} · ด่าน ${g.i+1} · ${esc(L[g.i].title)}</span>
       <div class="circled">${g.correct}/${n}</div>
-      ${starHTML(starsFor(g.correct)).replace('class="stars"','class="stars" style="font-size:1.8rem"')}
+      ${starHTML(starsFor(g.correct,n)).replace('class="stars"','class="stars" style="font-size:1.8rem"')}
       <div class="gain">+${g.gain} คะแนน · สะสม ${total(S.prog).toLocaleString()}</div>
       ${g.newStages.length?`<div class="row" style="justify-content:center">${g.newStages.map(i=>`<span class="newstage">เปิดด่าน ${i+1} แล้ว!</span>`).join("")}</div>`:""}
       ${g.newBadges.length?`<h2>ได้แบดจ์ใหม่!</h2><div class="unlocks">${g.newBadges.map(b=>`<figure class="badge-reveal">${badgeArt(b,150,true)}<figcaption>${esc(b.name)}</figcaption></figure>`).join("")}</div>`:""}
