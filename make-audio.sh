@@ -5,16 +5,21 @@
 #   curl -fsSL https://raw.githubusercontent.com/siriwarin22/dictation-game/main/make-audio.sh | bash
 set -euo pipefail
 
-TH_VOICE="${TH_VOICE:-Kanya}"
-EN_VOICE="${EN_VOICE:-Samantha}"
+# clearest voice installed wins; download better ones in System Settings → Accessibility →
+# Spoken Content → System voice → Manage Voices (Thai: Narisa / Kanya "Premium" or "Enhanced")
+pick(){ for v in "$@"; do grep -q "^$v  *[a-z][a-z]_" <<<"$VOICES" && { echo "$v"; return 0; }; done; return 0; }
 RATE="${RATE:-150}"
 WORK="$HOME/Desktop/dictation-audio"
 LIST_URL="https://raw.githubusercontent.com/siriwarin22/dictation-game/main/words.tsv"
 
 if ! command -v say >/dev/null; then echo "ต้องรันบน Mac เท่านั้น"; exit 1; fi
-has_voice(){ say -v '?' | grep -q "^$1 "; }
+VOICES="$(say -v '?')"
+TH_VOICE="${TH_VOICE:-$(pick "Narisa (Premium)" "Kanya (Premium)" "Narisa (Enhanced)" "Kanya (Enhanced)" "Narisa" "Kanya")}"
+EN_VOICE="${EN_VOICE:-$(pick "Ava (Premium)" "Zoe (Premium)" "Samantha (Enhanced)" "Ava (Enhanced)" "Allison (Enhanced)" "Samantha")}"
+echo "เสียงไทย: ${TH_VOICE:-ไม่พบ}   เสียงอังกฤษ: ${EN_VOICE:-ไม่พบ}"
+has_voice(){ [ -n "$1" ] && grep -q "^$1 " <<<"$VOICES"; }
 if ! has_voice "$TH_VOICE"; then
-  echo "ไม่พบเสียงภาษาไทย \"$TH_VOICE\" ในเครื่อง"
+  echo "ไม่พบเสียงภาษาไทยในเครื่อง"
   echo "เพิ่มได้ที่ System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Thai"
   exit 1
 fi
