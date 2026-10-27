@@ -1209,9 +1209,9 @@ function voiceFor(lang){const vs=voicesFor(lang);return vs.find(v=>v.voiceURI===
 function hasVoice(lang){return REC.ids.size>0 || ("speechSynthesis" in window && !!voiceFor(lang))}
 /* Recorded words (audio/<id>.m4a, listed in audio/manifest.json) play first;
    the browser's own voice is the fallback. Recordings come from make-audio.sh. */
-const REC={ids:new Set(),el:null};
+const REC={ids:new Set(),el:null,ext:"m4a"};
 function wordId(lang,w){let h=0x811c9dc5;for(const ch of lang+":"+w){h^=ch.codePointAt(0);h=Math.imul(h,0x01000193)>>>0}return lang+"_"+h.toString(16).padStart(8,"0")}
-fetch("audio/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(m=>{if(m&&Array.isArray(m.ids))REC.ids=new Set(m.ids.map(String))}).catch(()=>{});
+fetch("audio/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(m=>{if(m&&Array.isArray(m.ids)){REC.ids=new Set(m.ids.map(String));if(/^(m4a|wav|mp3)$/.test(m.ext||""))REC.ext=m.ext}}).catch(()=>{});
 // iPhone and in-app browsers (Messenger, LINE…) only let an <audio> element play after a tap;
 // prime the one shared element on the first touch so later words (even ones a timer or the
 // network starts) play without another tap
@@ -1230,7 +1230,7 @@ function speak(text,lang,slow){
   if(!REC.ids.has(id)) return speakTTS(text,lang,slow);
   try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}
   const a=REC.el||(REC.el=new Audio()); a.pause();
-  a.src="audio/"+id+".m4a"; a.preservesPitch=true; a.playbackRate=slow?0.7:1;
+  a.src="audio/"+id+"."+REC.ext; a.preservesPitch=true; a.playbackRate=slow?0.7:1;
   const b=$("#speak"); if(b)b.classList.add("playing"); SFX.duck(true);
   const done=()=>{const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
   a.onended=done; a.onerror=()=>{done();speakTTS(text,lang,slow)};

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ห้องอัดเสียง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700&family=Anuphan:wght@400;500;600&display=swap">
+<style>
+/* Recording booth for the word bank: one word per card, big red record key, progress kept in the browser. */
+:root{
+  --paper:#FCFDFB; --paper-2:#F1F5F8; --ink:#22305A; --ink-soft:#5B6788; --rule:#C9DCEB;
+  --red:#E2574C; --ok:#2E9E7A; --pencil:#F2B829; --card:#FFFFFF;
+  --f-display:"Mali","Anuphan",system-ui,sans-serif; --f-body:"Anuphan",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#1C2826; --paper-2:#22312E; --ink:#ECEFE4; --ink-soft:#A9B7AF; --rule:#30473F;
+  --red:#FF877C; --ok:#69D1B0; --pencil:#F6CF5C; --card:#25342F; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--f-body);
+  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 32px max(16px,env(safe-area-inset-left))}
+main{max-width:680px;margin:0 auto;display:grid;gap:14px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0;line-height:1.4}
+.muted{color:var(--ink-soft)}
+.bar{height:10px;border-radius:99px;background:var(--paper-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pencil);transition:width .3s}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select,button{font:inherit}
+select{padding:6px 10px;border-radius:10px;border:2px solid var(--rule);background:var(--card);color:var(--ink);max-width:100%}
+label.chk{display:flex;gap:6px;align-items:center;font-size:.9rem}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.card{background:var(--card);border-radius:18px;padding:22px 18px;display:grid;justify-items:center;gap:10px;text-align:center;
+  box-shadow:0 1px 0 rgba(34,48,90,.08),0 10px 24px -14px rgba(34,48,90,.35)}
+.tag{font-size:.8rem;font-weight:600;color:var(--ink-soft);letter-spacing:.04em}
+.word{font-family:var(--f-display);font-weight:700;font-size:clamp(2.2rem,10vw,3.6rem);line-height:1.9;overflow-wrap:anywhere}
+.meaning{color:var(--ink-soft);max-width:46ch}
+.status{font-weight:600;min-height:1.6em}
+.status.ok{color:var(--ok)}.status.rec{color:var(--red)}
+.rec{width:96px;height:96px;border-radius:50%;border:6px solid var(--red);background:var(--card);display:grid;place-items:center;cursor:pointer;padding:0}
+.rec i{width:46px;height:46px;border-radius:50%;background:var(--red);transition:all .2s}
+.rec.on i{width:34px;height:34px;border-radius:8px}
+.rec.on{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.level{width:min(260px,80%);height:8px;border-radius:99px;background:var(--paper-2);overflow:hidden}
+.level i{display:block;height:100%;width:0;background:var(--red)}
+.keys{font-size:.8rem;color:var(--ink-soft)}
+kbd{border:1px solid var(--rule);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-family:inherit}
+.panel{background:var(--paper-2);border-radius:14px;padding:14px;display:grid;gap:8px}
+.err{color:var(--red);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="row" style="justify-content:space-between">
+    <h1>ห้องอัดเสียง · สมุดตามคำบอก</h1>
+    <a class="muted" href="./" style="font-size:.9rem">กลับไปเกม</a>
+  </div>
+  <div>
+    <div class="row" style="justify-content:space-between;font-size:.9rem"><span id="prog-text">กำลังโหลดคำ…</span><span id="prog-pct"></span></div>
+    <div class="bar"><i id="prog-bar" style="width:0"></i></div>
+  </div>
+  <div class="row">
+    <select id="filter" aria-label="เลือกด่าน"></select>
+    <label class="chk"><input type="checkbox" id="skip-done" checked> ข้ามคำที่อัดแล้ว</label>
+    <label class="chk"><input type="checkbox" id="auto-next" checked> อัดเสร็จไปคำต่อไปเอง</label>
+  </div>
+
+  <section class="card" aria-live="polite">
+    <span class="tag" id="w-tag"></span>
+    <div class="word" id="w-word">…</div>
+    <div class="meaning" id="w-meaning"></div>
+    <button class="rec" id="rec" aria-label="เริ่มอัด"><i></i></button>
+    <div class="level"><i id="lvl"></i></div>
+    <div class="status" id="status">กดปุ่มแดง แล้วพูดคำนี้ 1 ครั้ง แล้วกดอีกครั้งเพื่อหยุด</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="prev">‹ ก่อนหน้า</button>
+      <button class="btn" id="play" disabled>▶ ฟัง</button>
+      <button class="btn" id="next">ถัดไป ›</button>
+    </div>
+    <div class="keys"><kbd>Space</kbd> อัด/หยุด · <kbd>P</kbd> ฟัง · <kbd>←</kbd> <kbd>→</kbd> เปลี่ยนคำ</div>
+  </section>
+
+  <section class="panel">
+    <b>เสร็จแล้ว (หรืออัดได้บางส่วนก็ได้)</b>
+    <span class="muted" style="font-size:.9rem">กดดาวน์โหลด จะได้ไฟล์ <code>dictation-audio.zip</code> ส่งไฟล์นี้ให้ Claude ในแชต · คำที่ยังไม่ได้อัด เกมจะใช้เสียงอ่านของเครื่องไปก่อน · เสียงเก็บไว้ในเบราว์เซอร์นี้ ปิดแล้วมาอัดต่อได้</span>
+    <div class="row"><button class="btn primary" id="export" disabled>ดาวน์โหลดไฟล์เสียง</button><span id="export-msg" class="muted" style="font-size:.9rem"></span></div>
+  </section>
+  <p class="err" id="mic-err" hidden></p>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+let WORDS=[],STAGES=[],list=[],idx=0,done=new Set();
+
+/* ---------- storage: one IndexedDB store, key = word id, value = WAV blob ---------- */
+const DB=new Promise((res,rej)=>{const r=indexedDB.open("dictation-rec",1);r.onupgradeneeded=()=>r.result.createObjectStore("clips");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const tx=(mode,fn)=>DB.then(db=>new Promise((res,rej)=>{const t=db.transaction("clips",mode),st=t.objectStore("clips");const r=fn(st);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)}));
+const putClip=(id,blob)=>tx("readwrite",st=>st.put(blob,id));
+const getClip=id=>tx("readonly",st=>st.get(id));
+const allKeys=()=>tx("readonly",st=>st.getAllKeys());
+
+/* ---------- audio: trim silence, normalise, 22.05 kHz mono 16-bit WAV ---------- */
+async function toWav(blob){
+  const AC=window.AudioContext||window.webkitAudioContext, ac=new AC();
+  const buf=await ac.decodeAudioData(await blob.arrayBuffer()); ac.close();
+  const ch=buf.getChannelData(0), sr=buf.sampleRate;
+  let peak=0; for(const v of ch) peak=Math.max(peak,Math.abs(v));
+  const thr=Math.max(0.02,peak*0.08), pad=Math.round(sr*0.12);
+  let a=0,b=ch.length-1; while(a<b&&Math.abs(ch[a])<thr)a++; while(b>a&&Math.abs(ch[b])<thr)b--;
+  a=Math.max(0,a-pad); b=Math.min(ch.length,b+pad);
+  if(b-a<sr*0.15) throw new Error("เสียงเบาเกินไป ลองพูดใกล้ไมค์อีกนิด");
+  const out=22050, len=Math.ceil((b-a)*out/sr);
+  const off=new OfflineAudioContext(1,len,out), src=off.createBufferSource(), seg=off.createBuffer(1,b-a,sr);
+  seg.copyToChannel(ch.slice(a,b),0); src.buffer=seg; src.connect(off.destination); src.start();
+  const r=(await off.startRendering()).getChannelData(0), gain=peak>0?0.9/peak:1;
+  const dv=new DataView(new ArrayBuffer(44+r.length*2)), w=(o,s)=>[...s].forEach((c,i)=>dv.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF");dv.setUint32(4,36+r.length*2,true);w(8,"WAVE");w(12,"fmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+  dv.setUint32(24,out,true);dv.setUint32(28,out*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,r.length*2,true);
+  for(let i=0;i<r.length;i++){const v=Math.max(-1,Math.min(1,r[i]*gain));dv.setInt16(44+i*2,v<0?v*0x8000:v*0x7fff,true)}
+  return new Blob([dv],{type:"audio/wav"});
+}
+
+/* ---------- zip (stored, no compression: WAV barely compresses) ---------- */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=u8=>{let c=~0;for(let i=0;i<u8.length;i++)c=CRC[(c^u8[i])&255]^(c>>>8);return (~c)>>>0};
+function zip(files){   // files: [{name, data:Uint8Array}]
+  const enc=new TextEncoder(), parts=[], cen=[]; let off=0;
+  for(const f of files){
+    const nm=enc.encode(f.name), crc=crc32(f.data), h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(8,0,true);h.setUint32(14,crc,true);
+    h.setUint32(18,f.data.length,true);h.setUint32(22,f.data.length,true);h.setUint16(26,nm.length,true);
+    parts.push(new Uint8Array(h.buffer),nm,f.data);
+    const c=new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,crc,true);
+    c.setUint32(20,f.data.length,true);c.setUint32(24,f.data.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+    cen.push(new Uint8Array(c.buffer),nm); off+=30+nm.length+f.data.length;
+  }
+  const size=cen.reduce((s,p)=>s+p.length,0), e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,size,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:"application/zip"});
+}
+
+/* ---------- recording ---------- */
+let stream=null,rec=null,chunks=[],meter=null;
+async function mic(){
+  if(stream) return stream;
+  stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const AC=window.AudioContext||window.webkitAudioContext, ac=new AC(), an=ac.createAnalyser(); an.fftSize=512;
+  ac.createMediaStreamSource(stream).connect(an); const d=new Uint8Array(an.fftSize);
+  meter=()=>{an.getByteTimeDomainData(d);let m=0;for(const v of d)m=Math.max(m,Math.abs(v-128));$("#lvl").style.width=Math.min(100,m/1.1)+"%";if(rec&&rec.state==="recording")requestAnimationFrame(meter);else $("#lvl").style.width="0"};
+  return stream;
+}
+async function toggleRec(){
+  if(rec&&rec.state==="recording"){rec.stop();return}
+  $("#mic-err").hidden=true;
+  try{await mic()}catch(e){$("#mic-err").hidden=false;$("#mic-err").textContent="เปิดไมค์ไม่ได้: อนุญาตให้เว็บนี้ใช้ไมโครโฟนในเบราว์เซอร์ แล้วลองใหม่ (ต้องเปิดผ่าน Safari หรือ Chrome ไม่ใช่ในแอปแชต)";return}
+  chunks=[]; rec=new MediaRecorder(stream);
+  rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  rec.onstop=async()=>{
+    $("#rec").classList.remove("on"); $("#rec").setAttribute("aria-label","เริ่มอัด");
+    const w=list[idx]; status("กำลังบันทึก…");
+    try{
+      const wav=await toWav(new Blob(chunks,{type:rec.mimeType||"audio/webm"}));
+      await putClip(w.id,wav); done.add(w.id); progress(); status("บันทึกแล้ว ✓","ok"); $("#play").disabled=false;
+      if($("#auto-next").checked) setTimeout(()=>{if(list[idx]===w)go(1)},700);
+    }catch(e){status(e.message||"บันทึกไม่สำเร็จ ลองอัดใหม่","rec")}
+  };
+  rec.start(); $("#rec").classList.add("on"); $("#rec").setAttribute("aria-label","หยุดอัด"); status("กำลังอัด… พูดคำนี้แล้วกดหยุด","rec"); meter();
+}
+const status=(t,c="")=>{const s=$("#status");s.textContent=t;s.className="status "+c};
+let player=null;
+async function play(){const w=list[idx],b=await getClip(w.id);if(!b)return;if(player)player.pause();player=new Audio(URL.createObjectURL(b));player.play()}
+
+/* ---------- navigation + UI ---------- */
+function progress(){
+  const n=done.size,t=WORDS.length;$("#prog-text").textContent=`อัดแล้ว ${n} / ${t} คำ`;$("#prog-pct").textContent=Math.round(n/t*100)+"%";
+  $("#prog-bar").style.width=(n/t*100)+"%";$("#export").disabled=!n;$("#export").textContent=`ดาวน์โหลดไฟล์เสียง (${n} คำ)`;
+}
+function buildList(){
+  const f=$("#filter").value; list=WORDS.filter(w=>f==="all"||f===w.lang+"-"+w.stage); idx=0;
+  if($("#skip-done").checked){const k=list.findIndex(w=>!done.has(w.id));idx=k<0?0:k}
+  show();
+}
+function show(){
+  const w=list[idx]; if(!w){$("#w-word").textContent="ไม่มีคำ";return}
+  const st=STAGES.find(s=>s.lang===w.lang&&s.stage===w.stage);
+  $("#w-tag").textContent=`${w.lang==="th"?"ไทย":"English"} · ด่าน ${w.stage} ${st?st.title:""} · คำที่ ${idx+1}/${list.length}`;
+  $("#w-word").textContent=w.word; $("#w-meaning").textContent=w.meaning;
+  const has=done.has(w.id); $("#play").disabled=!has;
+  status(has?"อัดแล้ว ✓ กดปุ่มแดงถ้าอยากอัดใหม่":"กดปุ่มแดง แล้วพูดคำนี้ 1 ครั้ง แล้วกดอีกครั้งเพื่อหยุด",has?"ok":"");
+}
+function go(d){
+  if(rec&&rec.state==="recording")return;
+  let i=idx+d;
+  if(d>0&&$("#skip-done").checked){while(i<list.length&&done.has(list[i].id))i++}
+  if(i>=list.length){status("ครบทุกคำในชุดนี้แล้ว 🎉 กดดาวน์โหลดด้านล่าง","ok");return}
+  idx=Math.max(0,i); show();
+}
+async function exportZip(){
+  const ids=[...done], files=[]; $("#export-msg").textContent="กำลังรวมไฟล์…";
+  for(const id of ids){const b=await getClip(id);if(b)files.push({name:"audio/"+id+".wav",data:new Uint8Array(await b.arrayBuffer())})}
+  files.push({name:"audio/manifest.json",data:new TextEncoder().encode(JSON.stringify({ext:"wav",voice:"recorded",ids:files.map(f=>f.name.slice(6,-4))}))});
+  const blob=zip(files), a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="dictation-audio.zip"; document.body.appendChild(a); a.click(); a.remove();
+  $("#export-msg").textContent=`ได้ไฟล์ ${files.length-1} คำ (${(blob.size/1048576).toFixed(1)} MB) ส่งให้ Claude ได้เลย`;
+}
+
+$("#rec").onclick=toggleRec; $("#next").onclick=()=>go(1); $("#prev").onclick=()=>go(-1); $("#play").onclick=play;
+$("#export").onclick=exportZip; $("#filter").onchange=buildList; $("#skip-done").onchange=buildList;
+addEventListener("keydown",e=>{if(e.target.tagName==="SELECT")return;
+  if(e.code==="Space"){e.preventDefault();toggleRec()} else if(e.key==="ArrowRight"||e.key==="Enter")go(1); else if(e.key==="ArrowLeft")go(-1); else if(e.key==="p"||e.key==="P")play()});
+
+(async()=>{
+  const data=await (await fetch("record-words.json",{cache:"no-cache"})).json();
+  WORDS=data.words; STAGES=data.stages;
+  try{done=new Set(await allKeys())}catch(e){}
+  $("#filter").innerHTML=`<option value="all">ทุกคำ (${WORDS.length})</option>`+STAGES.map(s=>`<option value="${s.lang}-${s.stage}">${s.lang==="th"?"ไทย":"EN"} ด่าน ${s.stage} · ${s.title}</option>`).join("");
+  progress(); buildList();
+  if(!window.MediaRecorder){$("#mic-err").hidden=false;$("#mic-err").textContent="เบราว์เซอร์นี้อัดเสียงไม่ได้ ใช้ Safari หรือ Chrome รุ่นใหม่"}
+})();
+</script>
+</body>
+</html>
