@@ -1385,7 +1385,8 @@ function questionHTML(n,total,score){
     ${timerHTML()}
     ${L.sent?`<h2>ส่งแล้ว!</h2><div class="bigname">${esc(L.ans)}</div><p class="muted">รอเพื่อนคนอื่น…</p>`
       :L.timeUp?`<h2>หมดเวลา</h2><p class="muted">รอเฉลย…</p>`
-      :`<div class="row" style="justify-content:center"><button class="speak" id="lp-say" type="button" aria-label="ฟังอีกครั้ง">${icon.speaker}</button><button class="btn" id="lp-slow" type="button">${icon.slow} ฟังช้า</button></div>
+      :`${hasVoice(curLang())?"":`<div class="notice" style="margin:0;text-align:left">เบราว์เซอร์นี้ไม่มีเสียงอ่าน${curLang()==="th"?"ภาษาไทย":"ภาษาอังกฤษ"} ถ้าใช้ Brave ให้กดรูปสิงโตแล้วปิด Shields ของเว็บนี้ หรือเปิดด้วย Chrome / Safari</div>`}
+      <div class="row" style="justify-content:center"><button class="speak" id="lp-say" type="button" aria-label="ฟังอีกครั้ง">${icon.speaker}</button><button class="btn" id="lp-slow" type="button">${icon.slow} ฟังช้า</button></div>
       <form id="live-ans-form" class="ansline" novalidate><input id="live-ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="เขียนคำที่ได้ยิน…" value="${esc(L.ans)}"></form>
       <button class="btn primary start" id="live-send">ส่งคำตอบ</button>`}`;
 }
