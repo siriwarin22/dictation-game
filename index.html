@@ -1205,7 +1205,21 @@ const LOCALE={th:"th-TH",en:"en-US"};
 // unless the player picked one by hand. (Ranking voices picked network voices that stay silent outside Chrome.)
 if(store.get("dict.voicev",0)<2){try{localStorage.removeItem("dict.badvoices");localStorage.removeItem("dict.voice")}catch(e){}store.set("dict.voicev",2);VOICE.pref={th:"",en:""}}
 function voicesFor(lang){const p=LANG[lang].voice;return voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p))}
-function voiceFor(lang){const vs=voicesFor(lang);return vs.find(v=>v.voiceURI===VOICE.pref[lang])||vs[0]}
+// Natural online voices only on the desktop browsers that really serve them: Chrome ("Google …")
+// and Edge ("Microsoft … Online (Natural)"). Brave lists Google voices but never speaks them, so it is excluded.
+const RICH=(()=>{const ua=navigator.userAgent, brands=((navigator.userAgentData||{}).brands||[]).map(b=>b.brand);
+  if(/Mobi|iPhone|iPad|Android/i.test(ua)) return null;
+  if(/\bEdg\//.test(ua)) return "edge";
+  if(brands.includes("Google Chrome")&&!navigator.brave) return "chrome";
+  return null})();
+let richOff=false;   // set for this visit if an online voice fails to start
+function richVoice(vs,lang){
+  if(!RICH||richOff) return null;
+  if(RICH==="chrome") return vs.find(v=>/^Google/i.test(v.name));
+  const want=lang==="th"?/Premwadee|Niwat|Achara/i:/(Ava|Jenny|Aria|Emma|Andrew|Brian).*(Natural|Online)/i;
+  return vs.find(v=>want.test(v.name)&&/Online|Natural/i.test(v.name));
+}
+function voiceFor(lang){const vs=voicesFor(lang);return vs.find(v=>v.voiceURI===VOICE.pref[lang])||richVoice(vs,lang)||vs[0]}
 function hasVoice(lang){return REC.ids.size>0 || ("speechSynthesis" in window && !!voiceFor(lang))}
 /* Recorded words (audio/<id>.m4a, listed in audio/manifest.json) play first;
    the browser's own voice is the fallback. Recordings come from make-audio.sh. */
@@ -1253,7 +1267,10 @@ function speakTTS(text,lang,slow){
     u.onend=u.onerror=done;
     speechSynthesis.speak(u);
     // only the latest word may raise the "stuck" note; a word cut short by the next one is fine
-    setTimeout(()=>{if(!started&&seq===speakSeq){done();speechToast(true,speechSynthesis.speaking)}},4000);
+    setTimeout(()=>{if(started||seq!==speakSeq)return;
+      // an online voice that never started (offline, blocked): fall back to the device voice once
+      if(v&&v.localService===false&&!richOff&&v.voiceURI!==VOICE.pref[lang]){richOff=true;speakTTS(text,lang,slow);return}
+      done();speechToast(true,speechSynthesis.speaking)},4000);
   };
   // Chrome/Brave drop an utterance queued right after cancel(); give the engine a beat first
   if(busy) setTimeout(go,150); else go();
