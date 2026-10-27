@@ -1032,9 +1032,25 @@ function voiceScore(v,lang){
 }
 function voicesFor(lang){const p=LANG[lang].voice;return voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p)).sort((a,b)=>voiceScore(b,lang)-voiceScore(a,lang))}
 function voiceFor(lang){const vs=voicesFor(lang);return vs.find(v=>v.voiceURI===VOICE.pref[lang])||vs[0]}
-function hasVoice(lang){return "speechSynthesis" in window && !!voiceFor(lang)}
-let speakTimer=null;
+function hasVoice(lang){return REC.ids.size>0 || ("speechSynthesis" in window && !!voiceFor(lang))}
+/* Recorded words (audio/<id>.m4a, listed in audio/manifest.json) play first;
+   the browser's own voice is the fallback. Recordings come from make-audio.sh. */
+const REC={ids:new Set(),el:null};
+function wordId(lang,w){let h=0x811c9dc5;for(const ch of lang+":"+w){h^=ch.codePointAt(0);h=Math.imul(h,0x01000193)>>>0}return lang+"_"+h.toString(16).padStart(8,"0")}
+fetch("audio/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(m=>{if(m&&Array.isArray(m.ids))REC.ids=new Set(m.ids.map(String))}).catch(()=>{});
 function speak(text,lang,slow){
+  const id=wordId(lang,text);
+  if(!REC.ids.has(id)) return speakTTS(text,lang,slow);
+  try{speechSynthesis.cancel()}catch(e){}
+  const a=REC.el||(REC.el=new Audio()); a.pause();
+  a.src="audio/"+id+".m4a"; a.preservesPitch=true; a.playbackRate=slow?0.7:1;
+  const b=$("#speak"); if(b)b.classList.add("playing"); SFX.duck(true);
+  const done=()=>{const b=$("#speak");if(b)b.classList.remove("playing");SFX.duck(false)};
+  a.onended=done; a.onerror=()=>{done();speakTTS(text,lang,slow)};
+  a.play().then(()=>speechToast(false)).catch(()=>{done();speakTTS(text,lang,slow)});
+}
+let speakTimer=null;
+function speakTTS(text,lang,slow){
   if(!("speechSynthesis" in window))return;
   speechSynthesis.cancel(); clearTimeout(speakTimer);
   try{speechSynthesis.resume()}catch(e){}   // Chrome can leave the queue stuck in "paused"
@@ -1077,7 +1093,7 @@ function speechToast(show){
     <button class="btn" type="button" id="toast-x">ปิด</button>`;
   t.hidden=false; $("#toast-x").onclick=()=>{t.hidden=true};
 }
-function hush(){try{speechSynthesis.cancel()}catch(e){}}
+function hush(){try{speechSynthesis.cancel()}catch(e){}try{REC.el&&REC.el.pause()}catch(e){}}
 
 /* ============================================================
    GAME SOUNDS — original chiptune-ish cues synthesised with Web Audio
