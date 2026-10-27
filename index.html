@@ -256,6 +256,8 @@ main{padding-block:20px}
 .lcard{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;display:grid;gap:8px;align-content:start}
 .lcard label{font-size:.85rem;font-weight:600}
 .lcard select{font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--rule);background:var(--card);color:var(--ink);max-width:100%}
+.lcard .chk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.9rem;line-height:1.8}
+.lcard .chk input{width:20px;height:20px;accent-color:var(--ink)}
 .lcard .err{color:var(--margin);font-size:.85rem;min-height:1.3em}
 .pin-in{font-family:var(--f-display);font-size:2rem;letter-spacing:.3em;text-align:center;line-height:64px;height:64px;border:2px solid var(--rule);border-radius:12px;background:var(--paper);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
 .name-in{font-family:var(--f-display);font-size:1.3rem;line-height:52px;height:52px;border:2px solid var(--rule);border-radius:12px;background:var(--paper);color:var(--ink);width:100%;padding:0 12px}
@@ -1172,7 +1174,7 @@ function hostCreate(cfg){
 const hostRanking=()=>Object.entries(L.players).map(([pid,x])=>({pid,name:x.name,score:x.score})).sort((a,b)=>b.score-a.score);
 function hostLobby(){liveSend("lobby",{count:Object.keys(L.players).length})}
 function hostState(){
-  if(L.phase==="question") return {phase:"question",n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000};
+  if(L.phase==="question") return {phase:"question",n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000,...qAudio()};
   if(L.phase==="reveal") return {phase:"reveal",...L.lastReveal};
   if(L.phase==="end") return {phase:"end",...L.lastEnd};
   return {phase:"lobby",count:Object.keys(L.players).length};
@@ -1196,9 +1198,13 @@ function hostMsg(ev,p){
     if(Object.keys(L.answers).length>=Object.keys(L.players).length) hostReveal(); else liveRender();
   }
 }
+// the word rides along to phones lightly scrambled, so it isn't sitting in plain text
+const encW=w=>{try{return btoa(unescape(encodeURIComponent(w))).split("").reverse().join("")}catch(e){return ""}};
+const decW=x=>{try{return decodeURIComponent(escape(atob(String(x||"").split("").reverse().join(""))))}catch(e){return ""}};
+const qAudio=()=>L.cfg.phoneAudio?{w:encW(L.words[L.q]),lang:L.cfg.lang}:{};
 function hostStartQ(){
   L.q++; L.answers={}; L.phase="question"; L.qStart=Date.now();
-  liveSend("q",{n:L.q,total:L.words.length,left:L.cfg.dur*1000,dur:L.cfg.dur*1000});
+  liveSend("q",{n:L.q,total:L.words.length,left:L.cfg.dur*1000,dur:L.cfg.dur*1000,...qAudio()});
   clearTimeout(L.timer); L.timer=setTimeout(()=>{if(L&&L.role==="host"&&L.phase==="question")hostReveal()},L.cfg.dur*1000+300);
   liveRender(); const w=L.words[L.q]; setTimeout(()=>speak(w,L.cfg.lang,false),400);
 }
@@ -1241,7 +1247,12 @@ function playerMsg(ev,p){
   if(ev==="state"){if(p.to!==L.pid)return;ev=p.phase==="question"?"q":p.phase}
   if(L.phase==="waiting"||L.phase==="nohost"){clearInterval(L.retry);clearTimeout(L.joinTimer);L.phase="lobby"}
   if(ev==="lobby"){L.count=num(p.count);if(L.phase==="lobby")liveRender()}
-  else if(ev==="q"){L.phase="question";L.n=num(p.n);L.total=num(p.total);L.dur=num(p.dur)||num(p.left)||1;L.endsAt=Date.now()+num(p.left);L.sent=false;L.timeUp=false;L.ans="";liveRender();setTimeout(()=>$("#live-ans")?.focus(),60)}
+  else if(ev==="q"){const fresh=L.n!==num(p.n)||L.phase!=="question";
+    L.phase="question";L.n=num(p.n);L.total=num(p.total);L.dur=num(p.dur)||num(p.left)||1;L.endsAt=Date.now()+num(p.left);
+    L.w=p.w?decW(p.w):"";L.wlang=p.lang==="en"?"en":"th";
+    if(fresh){L.sent=false;L.timeUp=false;L.ans=""}
+    liveRender();setTimeout(()=>$("#live-ans")?.focus(),60);
+    if(fresh&&L.w) setTimeout(()=>{if(L&&L.phase==="question")speak(L.w,L.wlang,false)},500)}
   else if(ev==="reveal"){L.phase="reveal";L.reveal=p;const me=p.res&&p.res[L.pid];if(me)L.score=num(me.score);liveRender()}
   else if(ev==="end"){L.phase="end";L.end=p;liveRender()}
   else if(ev==="closed"){L.phase="closed";liveRender()}
@@ -1278,6 +1289,7 @@ function viewLive(){
           <div style="display:grid;gap:4px"><label for="lc-count">จำนวนคำ</label><select id="lc-count">${[5,10,15,20].map(n=>`<option ${st.count===n?"selected":""}>${n}</option>`).join("")}</select></div>
           <div style="display:grid;gap:4px"><label for="lc-dur">เวลาต่อคำ</label><select id="lc-dur">${[15,20,30,45].map(n=>`<option value="${n}" ${st.dur===n?"selected":""}>${n} วินาที</option>`).join("")}</select></div>
         </div>
+        <label class="chk"><input type="checkbox" id="lc-phone" ${st.phoneAudio?"checked":""}> ให้มือถือผู้เล่นอ่านเสียงด้วย</label>
         <button class="btn primary start" type="submit">สร้างห้อง</button>
       </form></div>`;
   }
@@ -1287,7 +1299,7 @@ function viewLive(){
     if(L.phase==="connecting") return `<div class="lstage"><p class="muted">กำลังเปิดห้อง…</p></div>`;
     if(L.phase==="error") return `<div class="lstage"><h2>เปิดห้องไม่สำเร็จ</h2><p class="muted">ตรวจอินเทอร์เน็ตแล้วลองใหม่</p><button class="btn primary" id="live-close">กลับ</button></div>`;
     if(L.phase==="lobby") return `<div class="lstage">
-      <p class="eyebrow">${LANG[L.cfg.lang].label} · ด่าน ${L.cfg.stage+1} · ${L.words.length} คำ · ${L.cfg.dur} วินาที/คำ</p>
+      <p class="eyebrow">${LANG[L.cfg.lang].label} · ด่าน ${L.cfg.stage+1} · ${L.words.length} คำ · ${L.cfg.dur} วินาที/คำ${L.cfg.phoneAudio?" · มือถืออ่านเสียงด้วย":""}</p>
       <p class="muted" style="margin:0">เข้าเกมที่</p>
       <div class="joinurl"><span id="join-url">${esc(joinURL(L.pin))}</span><button class="btn" id="copy-url" type="button">คัดลอก</button></div>
       <p class="muted" style="margin:0">หรือใส่รหัส PIN</p>
@@ -1326,7 +1338,8 @@ function viewLive(){
     ${timerHTML()}
     ${L.sent?`<h2>ส่งแล้ว!</h2><div class="bigname">${esc(L.ans)}</div><p class="muted">รอเฉลย…</p>`
       :L.timeUp?`<h2>หมดเวลา</h2><p class="muted">รอเฉลย…</p>`
-      :`<p class="muted" style="margin:0">ฟังเสียงจากจอครู แล้วพิมพ์คำที่ได้ยิน</p>
+      :`${L.w?`<div class="row" style="justify-content:center"><button class="speak" id="lp-say" type="button" aria-label="ฟังอีกครั้ง">${icon.speaker}</button><button class="btn" id="lp-slow" type="button">${icon.slow} ฟังช้า</button></div>
+      <p class="muted" style="margin:0">ฟังแล้วพิมพ์คำที่ได้ยิน</p>`:`<p class="muted" style="margin:0">ฟังเสียงจากจอครู แล้วพิมพ์คำที่ได้ยิน</p>`}
       <form id="live-ans-form" class="ansline" novalidate><input id="live-ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="เขียนตรงนี้…" value="${esc(L.ans)}"></form>
       <button class="btn primary start" id="live-send">ส่งคำตอบ</button>`}</div>`;
   if(ph==="reveal"){const r=L.reveal||{},me=(r.res||{})[L.pid]||{};return `<div class="lstage">
@@ -1340,15 +1353,16 @@ function viewLive(){
     ${podiumHTML(e.podium||[])}${leave}</div>`}
   return "";
 }
-const LIVECFG={lang:"th",stage:0,count:10,dur:20};
+const LIVECFG={lang:"th",stage:0,count:10,dur:20,phoneAudio:true};
 function bindLive(){
   const jf=$("#join-form");
   if(jf){
     jf.onsubmit=e=>{e.preventDefault();const pin=($("#live-pin").value||"").replace(/\D/g,""),name=normName($("#live-name").value);
       if(pin.length!==6){$("#join-err").textContent="รหัส PIN ต้องเป็นตัวเลข 6 หลัก";return}
       if(!name){$("#join-err").textContent="ใส่ชื่อก่อนเข้าห้อง";return}
+      try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}
       S.livePin=pin; playerJoin(pin,name)};
-    $("#host-form").onsubmit=e=>{e.preventDefault();LIVECFG.stage=+$("#lc-stage").value;LIVECFG.count=+$("#lc-count").value;LIVECFG.dur=+$("#lc-dur").value;hostCreate({...LIVECFG})};
+    $("#host-form").onsubmit=e=>{e.preventDefault();LIVECFG.stage=+$("#lc-stage").value;LIVECFG.count=+$("#lc-count").value;LIVECFG.dur=+$("#lc-dur").value;LIVECFG.phoneAudio=$("#lc-phone").checked;hostCreate({...LIVECFG})};
     document.querySelectorAll("[data-lcfg]").forEach(b=>b.onclick=()=>{LIVECFG.lang=b.dataset.lcfg.split(":")[1];LIVECFG.stage=0;render()});
   }
   $("#live-close")&&($("#live-close").onclick=()=>{liveClose();render()});
@@ -1361,6 +1375,8 @@ function bindLive(){
   $("#copy-url")&&($("#copy-url").onclick=()=>{const t=joinURL(L.pin);navigator.clipboard?.writeText(t).then(()=>{$("#copy-url").textContent="คัดลอกแล้ว"},()=>{getSelection().selectAllChildren($("#join-url"))})});
   const af=$("#live-ans-form"); if(af){af.onsubmit=e=>{e.preventDefault();playerSend()};$("#live-ans").oninput=e=>{L.ans=e.target.value}}
   $("#live-send")&&($("#live-send").onclick=playerSend);
+  $("#lp-say")&&($("#lp-say").onclick=()=>{speak(L.w,L.wlang,false);$("#live-ans")?.focus()});
+  $("#lp-slow")&&($("#lp-slow").onclick=()=>{speak(L.w,L.wlang,true);$("#live-ans")?.focus()});
 }
 window.addEventListener("pagehide",()=>{if(L)liveClose()});
 
