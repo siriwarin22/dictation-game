@@ -207,6 +207,8 @@ main{padding-block:20px}
 .toast b{font-family:var(--f-display);font-size:1rem;line-height:1.7}
 .toast .btn{justify-self:end;background:transparent;color:var(--paper);border-color:var(--paper);padding:4px 12px}
 
+.fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
+
 /* results */
 .result{text-align:center;padding:24px 18px 8px;display:grid;gap:12px;justify-items:center}
 .circled{font-family:var(--f-display);font-weight:700;color:var(--margin);font-size:2.4rem;border:3px solid var(--margin);border-radius:50%;padding:10px 22px;transform:rotate(-6deg);font-variant-numeric:tabular-nums}
@@ -1081,8 +1083,9 @@ function speechToast(show,stuck){
     <span>ลองเปลี่ยนเสียงใน "ตั้งค่าเสียงอ่าน" หรือเปิดด้วย Safari / Chrome${isBrave?" (ใน Brave ลองปิด Shields ของเว็บนี้)":""}</span>
     <button class="btn" type="button" id="toast-x">ปิด</button>`;
   t.hidden=false; $("#toast-x").onclick=()=>{t.hidden=true};
+  clearTimeout(t._h); t._h=setTimeout(()=>{t.hidden=true},8000);   // never left covering the buttons
 }
-function hush(){try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}try{REC.el&&REC.el.pause()}catch(e){}}
+function hush(){FX.stop();try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}try{REC.el&&REC.el.pause()}catch(e){}}
 
 /* ============================================================
    GAME SOUNDS — original chiptune-ish cues synthesised with Web Audio
@@ -1158,6 +1161,7 @@ const SFX=(()=>{
     pop(){const t=now();tone(520,t,0.09,{to:880,vol:0.5})},
     join(){const t=now();tone(N(79),t,0.08,{type:"triangle",vol:0.4});tone(N(84),t+0.07,0.14,{type:"triangle",vol:0.4})},
     go(){const t=now();tone(N(72),t,0.08,{type:"square",vol:0.18});tone(N(79),t+0.08,0.08,{type:"square",vol:0.18});tone(N(84),t+0.16,0.2,{type:"square",vol:0.2})},
+    boom(){const t=now();noise(t,0.35,0.05);tone(90,t,0.3,{type:"sine",vol:0.25,to:45})},
     beep(last){const t=now();tone(last?1320:880,t,last?0.22:0.1,{type:"square",vol:0.22})},
     result(ok){const t=now();
       if(ok)[72,76,79,84].forEach((m,i)=>tone(N(m),t+i*0.075,0.22+(i===3?0.25:0),{type:"triangle",vol:0.55}));
@@ -1166,6 +1170,48 @@ const SFX=(()=>{
       for(let i=0;i<22;i++) noise(t+i*0.055,0.05,0.08+i*0.006);
       const f=t+1.3;[[60,64,67],[60,64,67],[65,69,72],[67,71,74,79]].forEach((ch,i)=>ch.forEach(m=>tone(N(m+12),f+i*0.16,i===3?0.9:0.14,{type:"square",vol:0.12})));
       tone(N(36),f+0.48,0.9,{type:"triangle",vol:0.6})},
+  };
+})();
+/* ============================================================
+   FIREWORKS — canvas overlay for the end of a game. Clicks pass through;
+   skipped entirely for people who ask for reduced motion.
+   ============================================================ */
+const FX=(()=>{
+  let cv=null,ctx=null,rockets=[],sparks=[],raf=0,until=0;
+  const COLORS=["#F2B829","#E2574C","#3FA98A","#5DB8F0","#FF8FB0","#A98BF0","#FFD86B"];
+  function size(){const d=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*d;cv.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0)}
+  function ensure(){if(cv)return;cv=document.createElement("canvas");cv.className="fx";cv.setAttribute("aria-hidden","true");document.body.appendChild(cv);ctx=cv.getContext("2d");size();addEventListener("resize",size)}
+  function launch(){
+    rockets.push({x:innerWidth*(0.12+Math.random()*0.76),y:innerHeight+8,vx:(Math.random()-.5)*1.6,vy:-(innerHeight/70+Math.random()*3),
+      top:innerHeight*(0.12+Math.random()*0.3),c:COLORS[Math.random()*COLORS.length|0]});
+  }
+  function burst(r){
+    const n=46+(Math.random()*30|0), ring=Math.random()<.35;
+    for(let i=0;i<n;i++){const a=Math.PI*2*i/n+Math.random()*.1, s=ring?3.6:1.2+Math.random()*3.4;
+      sparks.push({x:r.x,y:r.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,fade:.009+Math.random()*.008,c:Math.random()<.18?"#FFF7D6":r.c})}
+    SFX.boom();
+  }
+  function dot(x,y,rad,c,a){ctx.globalAlpha=a;ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,rad,0,6.283);ctx.fill()}
+  function frame(){
+    const W=innerWidth,H=innerHeight;
+    ctx.globalAlpha=1; ctx.globalCompositeOperation="destination-out"; ctx.fillStyle="rgba(0,0,0,.22)"; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation="source-over";
+    if(performance.now()<until&&Math.random()<.055) launch();
+    rockets=rockets.filter(r=>{r.x+=r.vx;r.y+=r.vy;r.vy+=.12;dot(r.x,r.y,2.4,r.c,1);dot(r.x-r.vx,r.y-r.vy*1.5,1.6,"#FFE9A8",.6);
+      if(r.y<=r.top||r.vy>=-.6){burst(r);return false}return true});
+    sparks=sparks.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.045;p.vx*=.986;p.vy*=.986;p.life-=p.fade;dot(p.x,p.y,2.1,p.c,Math.max(0,p.life));return p.life>0});
+    ctx.globalAlpha=1;
+    if(rockets.length||sparks.length||performance.now()<until) raf=requestAnimationFrame(frame);
+    else {ctx.clearRect(0,0,W,H);cv.hidden=true;raf=0}
+  }
+  return {
+    show(ms=5000,salvo=4){
+      if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      ensure(); cv.hidden=false; until=performance.now()+ms;
+      for(let i=0;i<salvo;i++) setTimeout(launch,i*220);
+      if(!raf) raf=requestAnimationFrame(frame);
+    },
+    stop(){until=0;rockets=[];sparks=[]},
   };
 })();
 function sfxButton(){const m=SFX.isMuted();return `<button class="sfxbtn" id="sfx-toggle" type="button" aria-label="${m?"เปิดเสียงเกม":"ปิดเสียงเกม"}" title="${m?"เปิดเสียงเกม":"ปิดเสียงเกม"}">${m
@@ -1354,7 +1400,7 @@ function hostEnd(){
   clearTimeout(L.autoT); L.phase="end"; const rank=hostRanking(), ranks={};
   rank.forEach((r,i)=>ranks[r.pid]={rank:i+1,score:r.score});
   L.lastEnd={podium:rank.slice(0,3).map(r=>({name:r.name,score:r.score})),list:rank.slice(0,40).map(r=>({name:r.name,score:r.score})),ranks,count:rank.length};
-  liveSend("end",L.lastEnd); liveRender(); SFX.fanfare();
+  liveSend("end",L.lastEnd); liveRender(); SFX.fanfare(); setTimeout(()=>FX.show(6000,5),1250);
 }
 function hostReplay(){   // same room, same friends, new words
   clearTimeout(L.autoT);clearTimeout(L.timer);
@@ -1392,7 +1438,7 @@ function playerMsg(ev,p){
     liveRender();setTimeout(()=>$("#live-ans")?.focus(),60); if(fresh)SFX.go();
     if(fresh&&L.w) setTimeout(()=>{if(L&&L.phase==="question")speak(L.w,L.wlang,false)},500)}
   else if(ev==="reveal"){const again=L.phase==="reveal";L.phase="reveal";L.reveal=p;const me=p.res&&p.res[L.pid];if(me)L.score=num(me.score);liveRender();if(!again)SFX.result(!!(me&&me.ok))}
-  else if(ev==="end"){const again=L.phase==="end";L.phase="end";L.end=p;liveRender();if(!again)SFX.fanfare()}
+  else if(ev==="end"){const again=L.phase==="end";L.phase="end";L.end=p;liveRender();if(!again){SFX.fanfare();setTimeout(()=>FX.show(6000,5),1250)}}
   else if(ev==="closed"){L.phase="closed";liveRender()}
 }
 function liveAnswer(){
@@ -1724,6 +1770,7 @@ function finishLevel(){
   saveProgress(play);
   submitRound(g);
   S.view="result"; render(); window.scrollTo({top:0});
+  if(g.correct>=6) setTimeout(()=>FX.show(g.correct===10?6000:3500,g.correct===10?5:3),300);
 }
 function answerRows(items){
   return `<div class="answers">${items.map((x,j)=>`<div class="ans">
