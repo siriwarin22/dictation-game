@@ -331,7 +331,7 @@ h3.sec{margin-top:22px;font-size:1.1rem}
         <button id="nav-home" data-view="home" aria-current="true">ด่าน</button>
         <button id="nav-badges" data-view="badges">แบดจ์</button>
         <button id="nav-rank" data-view="rank" hidden>อันดับ</button>
-        <button id="nav-live" data-view="live" hidden>เล่นสด</button>
+        <button id="nav-live" data-view="live" hidden>เล่นกับเพื่อน</button>
         <button id="nav-history" data-view="history">ประวัติ</button>
       </nav>
       <button class="themebtn" id="theme-btn" type="button"></button>
@@ -1146,69 +1146,80 @@ function openTx(pin,onMsg,onStatus){
 function liveRender(){if(S.view==="live")render()}
 function liveClose(){
   if(!L) return;
-  clearTimeout(L.timer);clearTimeout(L.joinTimer);clearInterval(L.retry);
+  clearTimeout(L.timer);clearTimeout(L.joinTimer);clearTimeout(L.autoT);clearInterval(L.retry);
   if(L.role==="host") liveSend("closed",{}); else liveSend("bye",{pid:L.pid});
   const tx=L.tx; L=null; setTimeout(()=>{try{tx&&tx.close()}catch(e){}},200);
 }
+const isHost=()=>L&&L.role==="host";
+const curWord=()=>isHost()?L.words[L.q]:L.w;
+const curLang=()=>isHost()?L.cfg.lang:L.wlang;
 function ensureLiveTimer(){
   if(liveTimer) return;
   liveTimer=setInterval(()=>{
     if(!L||S.view!=="live") return;
-    let left=0,dur=1;
-    if(L.role==="host"&&L.phase==="question"){dur=L.cfg.dur*1000;left=dur-(Date.now()-L.qStart)}
-    else if(L.role==="player"&&L.phase==="question"){dur=L.dur||1;left=L.endsAt-Date.now()}
-    else return;
-    left=Math.max(0,left);
+    if(isHost()&&L.phase==="reveal"){const a=$("#auto-n");if(a)a.textContent=Math.max(0,Math.ceil((L.autoAt-Date.now())/1000));return}
+    if(L.phase!=="question") return;
+    const dur=isHost()?L.cfg.dur*1000:(L.dur||1);
+    const left=Math.max(0,isHost()?dur-(Date.now()-L.qStart):L.endsAt-Date.now());
     const n=$("#lt-num"),b=$("#lt-bar"); if(n)n.textContent=Math.ceil(left/1000); if(b)b.style.width=(left/dur*100)+"%";
-    if(L.role==="player"&&left<=0&&!L.sent&&!L.timeUp){L.timeUp=true;liveRender()}
+    if(left<=0&&!L.sent&&!L.timeUp){L.timeUp=true;liveRender()}
   },200);
 }
-/* host */
+// the word rides along to every phone lightly scrambled, so it isn't sitting in plain text
+const encW=w=>{try{return btoa(unescape(encodeURIComponent(w))).split("").reverse().join("")}catch(e){return ""}};
+const decW=x=>{try{return decodeURIComponent(escape(atob(String(x||"").split("").reverse().join(""))))}catch(e){return ""}};
+
+/* the room's creator runs the game and plays in it like everyone else */
+const AUTO_NEXT=7000;
 function hostCreate(cfg){
   liveClose(); hush();
-  const pin=String(Math.floor(100000+Math.random()*900000));
-  L={role:"host",pin,cfg,words:shuffle(LEVELS[cfg.lang][cfg.stage].items).slice(0,cfg.count),players:{},q:-1,phase:"connecting",answers:{},qStart:0};
+  const pin=String(Math.floor(100000+Math.random()*900000)), me="h_"+livePid();
+  L={role:"host",pin,cfg,me,words:shuffle(LEVELS[cfg.lang][cfg.stage].items).slice(0,cfg.count),
+     players:{[me]:{name:cfg.name,score:0}},q:-1,phase:"connecting",answers:{},qStart:0,sent:false,ans:"",timeUp:false};
   L.tx=openTx(pin,hostMsg,st=>{if(!L||L.pin!==pin)return;if(st==="ok"&&L.phase==="connecting"){L.phase="lobby";liveRender()}if(st==="error"){L.phase="error";liveRender()}});
   ensureLiveTimer(); liveRender();
 }
 const hostRanking=()=>Object.entries(L.players).map(([pid,x])=>({pid,name:x.name,score:x.score})).sort((a,b)=>b.score-a.score);
-function hostLobby(){liveSend("lobby",{count:Object.keys(L.players).length})}
+function hostLobby(){liveSend("lobby",{count:Object.keys(L.players).length,names:Object.values(L.players).map(x=>x.name).slice(0,40)})}
+const qPayload=()=>({n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000,w:encW(L.words[L.q]),lang:L.cfg.lang});
 function hostState(){
-  if(L.phase==="question") return {phase:"question",n:L.q,total:L.words.length,left:Math.max(0,L.cfg.dur*1000-(Date.now()-L.qStart)),dur:L.cfg.dur*1000,...qAudio()};
+  if(L.phase==="question") return {phase:"question",...qPayload()};
   if(L.phase==="reveal") return {phase:"reveal",...L.lastReveal};
   if(L.phase==="end") return {phase:"end",...L.lastEnd};
-  return {phase:"lobby",count:Object.keys(L.players).length};
+  return {phase:"lobby",count:Object.keys(L.players).length,names:Object.values(L.players).map(x=>x.name).slice(0,40)};
+}
+function recordAnswer(pid,a){
+  if(L.phase!=="question"||!L.players[pid]||L.answers[pid]) return;
+  a=String(a||"").slice(0,120);
+  const el=Date.now()-L.qStart, ok=norm(a,L.cfg.lang)!==""&&norm(a,L.cfg.lang)===norm(L.words[L.q],L.cfg.lang);
+  // Kahoot-style: up to 1000 for an instant right answer, 500 at the buzzer
+  L.answers[pid]={a,ok,pts:ok?Math.round(1000*(1-Math.min(1,el/(L.cfg.dur*1000))/2)):0};
+  const got=Object.keys(L.answers).length;
+  if(got>=Object.keys(L.players).length) hostReveal();
+  else {const c=$("#ans-count"); if(c) c.textContent=got;}
 }
 function hostMsg(ev,p){
   if(!L||L.role!=="host"||!p) return;
   const pid=String(p.pid||"").slice(0,40);
-  if(ev==="hello"&&pid){
+  if(ev==="hello"&&pid&&pid!==L.me){
     const isNew=!L.players[pid];
     if(isNew) L.players[pid]={name:normName(p.name)||"ผู้เล่น",score:0}; else L.players[pid].name=normName(p.name)||L.players[pid].name;
     hostLobby(); liveSend("state",{to:pid,...hostState()});
-    if(isNew) liveRender();
-  } else if(ev==="bye"&&L.players[pid]&&L.phase==="lobby"){
+    if(isNew&&L.phase==="lobby") liveRender();
+  } else if(ev==="bye"&&L.players[pid]&&pid!==L.me&&L.phase==="lobby"){
     delete L.players[pid]; hostLobby(); liveRender();
-  } else if(ev==="ans"&&L.phase==="question"&&p.n===L.q&&L.players[pid]&&!L.answers[pid]){
-    const a=String(p.a||"").slice(0,120), el=Date.now()-L.qStart;
-    const ok=norm(a,L.cfg.lang)!==""&&norm(a,L.cfg.lang)===norm(L.words[L.q],L.cfg.lang);
-    // Kahoot-style: up to 1000 for an instant right answer, 500 at the buzzer
-    const pts=ok?Math.round(1000*(1-Math.min(1,el/(L.cfg.dur*1000))/2)):0;
-    L.answers[pid]={a,ok,pts};
-    if(Object.keys(L.answers).length>=Object.keys(L.players).length) hostReveal(); else liveRender();
-  }
+  } else if(ev==="ans"&&p.n===L.q) recordAnswer(pid,p.a);
 }
-// the word rides along to phones lightly scrambled, so it isn't sitting in plain text
-const encW=w=>{try{return btoa(unescape(encodeURIComponent(w))).split("").reverse().join("")}catch(e){return ""}};
-const decW=x=>{try{return decodeURIComponent(escape(atob(String(x||"").split("").reverse().join(""))))}catch(e){return ""}};
-const qAudio=()=>L.cfg.phoneAudio?{w:encW(L.words[L.q]),lang:L.cfg.lang}:{};
 function hostStartQ(){
-  L.q++; L.answers={}; L.phase="question"; L.qStart=Date.now();
-  liveSend("q",{n:L.q,total:L.words.length,left:L.cfg.dur*1000,dur:L.cfg.dur*1000,...qAudio()});
+  clearTimeout(L.autoT);
+  L.q++; L.answers={}; L.phase="question"; L.qStart=Date.now(); L.sent=false; L.ans=""; L.timeUp=false;
+  liveSend("q",qPayload());
   clearTimeout(L.timer); L.timer=setTimeout(()=>{if(L&&L.role==="host"&&L.phase==="question")hostReveal()},L.cfg.dur*1000+300);
-  liveRender(); const w=L.words[L.q]; setTimeout(()=>speak(w,L.cfg.lang,false),400);
+  liveRender(); setTimeout(()=>$("#live-ans")?.focus(),60);
+  const w=L.words[L.q]; setTimeout(()=>{if(L&&L.phase==="question")speak(w,L.cfg.lang,false)},500);
 }
 function hostReveal(){
+  if(L.phase!=="question") return;
   clearTimeout(L.timer); L.phase="reveal";
   for(const [pid,a] of Object.entries(L.answers)) if(L.players[pid]) L.players[pid].score+=a.pts;
   const rank=hostRanking(), res={};
@@ -1216,20 +1227,29 @@ function hostReveal(){
   const w=L.words[L.q];
   L.lastReveal={n:L.q,total:L.words.length,word:w,meaning:MEAN[w]||"",res,top:rank.slice(0,5).map(r=>({name:r.name,score:r.score})),
     right:Object.values(L.answers).filter(a=>a.ok).length,count:rank.length};
-  liveSend("reveal",L.lastReveal); liveRender();
+  liveSend("reveal",L.lastReveal);
+  L.autoAt=Date.now()+AUTO_NEXT; clearTimeout(L.autoT); L.autoT=setTimeout(()=>{if(L&&L.role==="host"&&L.phase==="reveal")hostNext()},AUTO_NEXT);
+  liveRender();
 }
+function hostNext(){if(L.q+1<L.words.length)hostStartQ();else hostEnd()}
 function hostEnd(){
-  L.phase="end"; const rank=hostRanking(), ranks={};
+  clearTimeout(L.autoT); L.phase="end"; const rank=hostRanking(), ranks={};
   rank.forEach((r,i)=>ranks[r.pid]={rank:i+1,score:r.score});
   L.lastEnd={podium:rank.slice(0,3).map(r=>({name:r.name,score:r.score})),list:rank.slice(0,40).map(r=>({name:r.name,score:r.score})),ranks,count:rank.length};
   liveSend("end",L.lastEnd); liveRender();
 }
-/* player */
+function hostReplay(){   // same room, same friends, new words
+  clearTimeout(L.autoT);clearTimeout(L.timer);
+  L.words=shuffle(LEVELS[L.cfg.lang][L.cfg.stage].items).slice(0,L.cfg.count);
+  for(const p of Object.values(L.players)) p.score=0;
+  L.q=-1; L.answers={}; L.phase="lobby"; hostLobby(); liveRender();
+}
+/* joining players */
 // one id per browser tab, so two tabs on one device join as two players
 function livePid(){let id="";try{id=sessionStorage.getItem("dict.livepid")||""}catch(e){}if(!id){id=newId();try{sessionStorage.setItem("dict.livepid",id)}catch(e){}}return id}
 function playerJoin(pin,name){
   liveClose(); hush();
-  L={role:"player",pin,pid:livePid(),name,phase:"connecting",n:-1,total:0,endsAt:0,dur:1,sent:false,ans:"",score:0,count:0};
+  L={role:"player",pin,pid:livePid(),name,phase:"connecting",n:-1,total:0,endsAt:0,dur:1,sent:false,ans:"",score:0,count:0,names:[]};
   const hello=()=>liveSend("hello",{pid:L.pid,name:L.name});
   L.tx=openTx(pin,playerMsg,st=>{
     if(!L||L.pin!==pin) return;
@@ -1246,7 +1266,7 @@ function playerMsg(ev,p){
   if(!L||L.role!=="player"||!p) return;
   if(ev==="state"){if(p.to!==L.pid)return;ev=p.phase==="question"?"q":p.phase}
   if(L.phase==="waiting"||L.phase==="nohost"){clearInterval(L.retry);clearTimeout(L.joinTimer);L.phase="lobby"}
-  if(ev==="lobby"){L.count=num(p.count);if(L.phase==="lobby")liveRender()}
+  if(ev==="lobby"){L.count=num(p.count);L.names=Array.isArray(p.names)?p.names.map(normName):[];if(L.phase==="end"){L.score=0;L.phase="lobby"}if(L.phase==="lobby")liveRender()}
   else if(ev==="q"){const fresh=L.n!==num(p.n)||L.phase!=="question";
     L.phase="question";L.n=num(p.n);L.total=num(p.total);L.dur=num(p.dur)||num(p.left)||1;L.endsAt=Date.now()+num(p.left);
     L.w=p.w?decW(p.w):"";L.wlang=p.lang==="en"?"en":"th";
@@ -1257,30 +1277,57 @@ function playerMsg(ev,p){
   else if(ev==="end"){L.phase="end";L.end=p;liveRender()}
   else if(ev==="closed"){L.phase="closed";liveRender()}
 }
-function playerSend(){
+function liveAnswer(){
   if(!L||L.phase!=="question"||L.sent||L.timeUp) return;
   const a=($("#live-ans")?.value||"").slice(0,120); if(!a.trim()){$("#live-ans")?.focus();return}
-  L.ans=a; L.sent=true; liveSend("ans",{pid:L.pid,n:L.n,a}); liveRender();
+  L.ans=a; L.sent=true;
+  if(isHost()){liveRender();recordAnswer(L.me,a)} else {liveSend("ans",{pid:L.pid,n:L.n,a});liveRender()}
 }
 function joinURL(pin){return location.href.split(/[?#]/)[0]+"?pin="+pin}
 const timerHTML=()=>`<div class="ltimer"><b id="lt-num">–</b><div class="bar"><i id="lt-bar" style="width:100%"></i></div></div>`;
+// the question screen is the same for whoever created the room and whoever joined it
+function questionHTML(n,total,score){
+  return `<p class="eyebrow">ข้อ ${n+1} / ${total} · ${score.toLocaleString()} คะแนน</p>
+    ${timerHTML()}
+    ${L.sent?`<h2>ส่งแล้ว!</h2><div class="bigname">${esc(L.ans)}</div><p class="muted">รอเพื่อนคนอื่น…</p>`
+      :L.timeUp?`<h2>หมดเวลา</h2><p class="muted">รอเฉลย…</p>`
+      :`<div class="row" style="justify-content:center"><button class="speak" id="lp-say" type="button" aria-label="ฟังอีกครั้ง">${icon.speaker}</button><button class="btn" id="lp-slow" type="button">${icon.slow} ฟังช้า</button></div>
+      <form id="live-ans-form" class="ansline" novalidate><input id="live-ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="เขียนคำที่ได้ยิน…" value="${esc(L.ans)}"></form>
+      <button class="btn primary start" id="live-send">ส่งคำตอบ</button>`}`;
+}
+function revealHTML(r,me,score){
+  return `<p class="eyebrow">ข้อ ${num(r.n)+1} / ${num(r.total)} · ถูก ${num(r.right)} จาก ${num(r.count)} คน</p>
+    <div class="verdict ${me.ok?"ok":"no"}">${me.ok?"ถูก!":me.answered?"ผิด":"ไม่ได้ตอบ"}</div>
+    ${me.ok?`<div class="gain">+${num(me.pts)}</div>`:""}
+    <div class="bigword">${esc(r.word||"")}</div><p class="muted" style="margin:0">${esc(r.meaning||"")}</p>
+    <p class="pcount">อันดับที่ <b>${num(me.rank)||"-"}</b> · ${score.toLocaleString()} คะแนน</p>
+    <ol class="top5">${(r.top||[]).map((x,i)=>`<li><span>${i+1}</span><b>${esc(x.name)}</b><em>${num(x.score).toLocaleString()}</em></li>`).join("")}</ol>`;
+}
+function endHTML(e,me){
+  return `<p class="eyebrow">จบเกม · ${num(e.count)} คน</p><h2>คุณได้อันดับที่ ${num(me.rank)||"-"}</h2>
+    <p class="pcount">${num(me.score).toLocaleString()} คะแนน</p>
+    ${podiumHTML(e.podium||[])}
+    <ol class="top5" start="4">${(e.list||[]).slice(3).map((x,i)=>`<li><span>${i+4}</span><b>${esc(x.name)}</b><em>${num(x.score).toLocaleString()}</em></li>`).join("")}</ol>`;
+}
 function viewLive(){
-  if(!ONLINE) return `<h2>เล่นสด</h2><div class="empty" style="margin-top:14px">ห้องเล่นสดใช้ได้บนเว็บที่อัปขึ้นเอง (เช่น Netlify) ไม่ใช่ในหน้า claude.ai</div>`;
+  if(!ONLINE) return `<h2>เล่นกับเพื่อน</h2><div class="empty" style="margin-top:14px">เล่นกับเพื่อนได้บนเว็บ sunny-blini-09d37f.netlify.app ไม่ใช่ในหน้า claude.ai</div>`;
   if(!L){
     const st=LIVECFG;
     return `<div class="live-grid">
       <form class="lcard" id="join-form" novalidate>
-        <p class="eyebrow">นักเรียน</p><h2>เข้าร่วมเกม</h2>
+        <p class="eyebrow">มีรหัสจากเพื่อน</p><h2>เข้าห้อง</h2>
         <label for="live-pin">รหัส PIN</label>
         <input id="live-pin" class="pin-in" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="000000" value="${esc(S.livePin||"")}">
-        <label for="live-name">ชื่อที่ใช้ในเกม</label>
+        <label for="live-name">ชื่อในเกม</label>
         <input id="live-name" class="name-in" maxlength="24" autocomplete="nickname" value="${esc(S.nick||"")}" placeholder="ชื่อเล่น">
         <div class="err" id="join-err" role="alert"></div>
         <button class="btn primary start" type="submit">เข้าห้อง</button>
       </form>
       <form class="lcard" id="host-form" novalidate>
-        <p class="eyebrow">ครู / คนจัดเกม</p><h2>สร้างห้อง</h2>
-        <p class="muted" style="margin:0;font-size:.88rem">เปิดหน้านี้บนจอใหญ่ที่มีลำโพง เครื่องนี้จะอ่านคำให้ทุกคนฟัง</p>
+        <p class="eyebrow">ชวนเพื่อนมาแข่ง</p><h2>สร้างห้อง</h2>
+        <p class="muted" style="margin:0;font-size:.88rem">ได้รหัส PIN ส่งให้เพื่อน แล้วแข่งกันฟังและเขียน ใครถูกและเร็วกว่าได้คะแนนมากกว่า</p>
+        <label for="lc-name">ชื่อในเกม</label>
+        <input id="lc-name" class="name-in" maxlength="24" autocomplete="nickname" value="${esc(S.nick||"")}" placeholder="ชื่อเล่น">
         <label>ภาษา</label>
         <div class="seg" role="group">${["th","en"].map(l=>`<button type="button" data-lcfg="lang:${l}" aria-pressed="${st.lang===l}">${LANG[l].label}</button>`).join("")}</div>
         <label for="lc-stage">ด่าน</label>
@@ -1289,94 +1336,72 @@ function viewLive(){
           <div style="display:grid;gap:4px"><label for="lc-count">จำนวนคำ</label><select id="lc-count">${[5,10,15,20].map(n=>`<option ${st.count===n?"selected":""}>${n}</option>`).join("")}</select></div>
           <div style="display:grid;gap:4px"><label for="lc-dur">เวลาต่อคำ</label><select id="lc-dur">${[15,20,30,45].map(n=>`<option value="${n}" ${st.dur===n?"selected":""}>${n} วินาที</option>`).join("")}</select></div>
         </div>
-        <label class="chk"><input type="checkbox" id="lc-phone" ${st.phoneAudio?"checked":""}> ให้มือถือผู้เล่นอ่านเสียงด้วย</label>
+        <div class="err" id="host-err" role="alert"></div>
         <button class="btn primary start" type="submit">สร้างห้อง</button>
       </form></div>`;
   }
-  if(L.role==="host"){
-    const players=Object.values(L.players), n=players.length;
-    const close=`<button class="btn" id="live-close">ปิดห้อง</button>`;
+  const leave=`<button class="btn" id="live-close">${isHost()?"ปิดห้อง":"ออกจากห้อง"}</button>`;
+  if(isHost()){
+    const players=Object.entries(L.players), n=players.length;
     if(L.phase==="connecting") return `<div class="lstage"><p class="muted">กำลังเปิดห้อง…</p></div>`;
-    if(L.phase==="error") return `<div class="lstage"><h2>เปิดห้องไม่สำเร็จ</h2><p class="muted">ตรวจอินเทอร์เน็ตแล้วลองใหม่</p><button class="btn primary" id="live-close">กลับ</button></div>`;
+    if(L.phase==="error") return `<div class="lstage"><h2>เปิดห้องไม่สำเร็จ</h2><p class="muted">ตรวจอินเทอร์เน็ตแล้วลองใหม่</p>${leave}</div>`;
     if(L.phase==="lobby") return `<div class="lstage">
-      <p class="eyebrow">${LANG[L.cfg.lang].label} · ด่าน ${L.cfg.stage+1} · ${L.words.length} คำ · ${L.cfg.dur} วินาที/คำ${L.cfg.phoneAudio?" · มือถืออ่านเสียงด้วย":""}</p>
-      <p class="muted" style="margin:0">เข้าเกมที่</p>
-      <div class="joinurl"><span id="join-url">${esc(joinURL(L.pin))}</span><button class="btn" id="copy-url" type="button">คัดลอก</button></div>
-      <p class="muted" style="margin:0">หรือใส่รหัส PIN</p>
+      <p class="eyebrow">${LANG[L.cfg.lang].label} · ด่าน ${L.cfg.stage+1} · ${L.words.length} คำ · ${L.cfg.dur} วินาที/คำ</p>
+      <p class="muted" style="margin:0">ส่งรหัสนี้ให้เพื่อน</p>
       <div class="bigpin">${L.pin.slice(0,3)} ${L.pin.slice(3)}</div>
-      <div class="pcount"><b>${n}</b> คนเข้าห้องแล้ว</div>
-      <div class="pchips">${players.map(x=>`<span>${esc(x.name)}</span>`).join("")||`<span class="muted" style="border:0">รอผู้เล่น…</span>`}</div>
-      <div class="row" style="justify-content:center">${close}<button class="btn primary" id="live-start" ${n?"":"disabled"}>เริ่มเกม</button></div></div>`;
-    if(L.phase==="question"){const got=Object.keys(L.answers).length;return `<div class="lstage">
-      <p class="eyebrow">ข้อ ${L.q+1} / ${L.words.length}</p><h2>ฟังแล้วพิมพ์คำที่ได้ยิน</h2>
-      ${timerHTML()}
-      <div class="row" style="justify-content:center"><button class="speak" id="live-say" aria-label="อ่านอีกครั้ง">${icon.speaker}</button><button class="btn" id="live-slow">${icon.slow} อ่านช้า</button></div>
-      <div class="pcount"><b>${got}</b> / ${n} คนตอบแล้ว</div>
-      <div class="row" style="justify-content:center"><button class="btn" id="live-reveal">เฉลยเลย</button></div></div>`}
-    if(L.phase==="reveal"){const r=L.lastReveal;return `<div class="lstage">
-      <p class="eyebrow">ข้อ ${r.n+1} / ${r.total} · ถูก ${r.right} จาก ${r.count} คน</p>
-      <div class="bigword">${esc(r.word)}</div><p class="muted" style="margin:0">${esc(r.meaning)}</p>
-      <ol class="top5">${r.top.map((x,i)=>`<li><span>${i+1}</span><b>${esc(x.name)}</b><em>${x.score.toLocaleString()}</em></li>`).join("")}</ol>
-      <div class="row" style="justify-content:center">${close}<button class="btn primary" id="live-next">${r.n+1<r.total?"ข้อต่อไป":"ดูผลรวม"}</button></div></div>`}
-    if(L.phase==="end"){const e=L.lastEnd;return `<div class="lstage">
-      <p class="eyebrow">จบเกม · ${e.count} คน</p><h2>ผู้ชนะ</h2>
-      ${podiumHTML(e.podium)}
-      <ol class="top5" start="4">${e.list.slice(3).map((x,i)=>`<li><span>${i+4}</span><b>${esc(x.name)}</b><em>${x.score.toLocaleString()}</em></li>`).join("")}</ol>
-      <div class="row" style="justify-content:center">${close}<button class="btn primary" id="live-again">เล่นอีกรอบ</button></div></div>`}
+      <div class="joinurl"><span id="join-url">${esc(joinURL(L.pin))}</span><button class="btn" id="copy-url" type="button">คัดลอกลิงก์</button></div>
+      <div class="pcount"><b>${n}</b> คนในห้อง</div>
+      <div class="pchips">${players.map(([pid,x])=>`<span>${esc(x.name)}${pid===L.me?" (คุณ)":""}</span>`).join("")}</div>
+      <div class="row" style="justify-content:center">${leave}<button class="btn primary" id="live-start">เริ่มเกม</button></div>
+      ${n<2?`<p class="muted" style="margin:0;font-size:.85rem">รอเพื่อนเข้าห้อง หรือกดเริ่มเล่นคนเดียวก็ได้</p>`:""}</div>`;
+    if(L.phase==="question") return `<div class="lstage">${questionHTML(L.q,L.words.length,L.players[L.me].score)}
+      <div class="pcount"><b id="ans-count">${Object.keys(L.answers).length}</b> / ${n} คนตอบแล้ว</div>
+      <button class="btn" id="live-reveal">ข้ามไปเฉลย</button></div>`;
+    if(L.phase==="reveal"){const r=L.lastReveal;return `<div class="lstage">${revealHTML(r,r.res[L.me]||{},L.players[L.me].score)}
+      <div class="row" style="justify-content:center">${leave}<button class="btn primary" id="live-next">${r.n+1<r.total?"ข้อต่อไป":"ดูผลรวม"} (<span id="auto-n">${Math.ceil(AUTO_NEXT/1000)}</span>)</button></div></div>`}
+    if(L.phase==="end") return `<div class="lstage">${endHTML(L.lastEnd,L.lastEnd.ranks[L.me]||{})}
+      <div class="row" style="justify-content:center">${leave}<button class="btn primary" id="live-again">เล่นอีกรอบ</button></div></div>`;
+    return "";
   }
-  // player
-  const leave=`<button class="btn" id="live-close">ออกจากห้อง</button>`;
   const ph=L.phase;
   if(ph==="connecting"||ph==="waiting") return `<div class="lstage"><p class="muted">กำลังเข้าห้อง ${esc(L.pin)}…</p>${leave}</div>`;
-  if(ph==="nohost") return `<div class="lstage"><h2>ไม่พบห้องนี้</h2><p class="muted">ตรวจรหัส PIN อีกครั้ง หรือรอให้ครูเปิดห้องก่อน</p>${leave}</div>`;
+  if(ph==="nohost") return `<div class="lstage"><h2>ไม่พบห้องนี้</h2><p class="muted">ตรวจรหัส PIN อีกครั้ง หรือรอให้เพื่อนสร้างห้องก่อน</p>${leave}</div>`;
   if(ph==="error") return `<div class="lstage"><h2>เชื่อมต่อไม่ได้</h2><p class="muted">ตรวจอินเทอร์เน็ตแล้วลองใหม่</p>${leave}</div>`;
   if(ph==="closed") return `<div class="lstage"><h2>ห้องนี้ปิดแล้ว</h2>${leave}</div>`;
   if(ph==="lobby") return `<div class="lstage"><p class="eyebrow">ห้อง ${esc(L.pin)}</p><h2>เข้าห้องแล้ว!</h2>
-    <div class="bigname">${esc(L.name)}</div><p class="muted">รอครูเริ่มเกม · ตอนนี้มี ${L.count} คนในห้อง</p>${leave}</div>`;
-  if(ph==="question") return `<div class="lstage">
-    <p class="eyebrow">ข้อ ${L.n+1} / ${L.total} · ${L.score.toLocaleString()} คะแนน</p>
-    ${timerHTML()}
-    ${L.sent?`<h2>ส่งแล้ว!</h2><div class="bigname">${esc(L.ans)}</div><p class="muted">รอเฉลย…</p>`
-      :L.timeUp?`<h2>หมดเวลา</h2><p class="muted">รอเฉลย…</p>`
-      :`${L.w?`<div class="row" style="justify-content:center"><button class="speak" id="lp-say" type="button" aria-label="ฟังอีกครั้ง">${icon.speaker}</button><button class="btn" id="lp-slow" type="button">${icon.slow} ฟังช้า</button></div>
-      <p class="muted" style="margin:0">ฟังแล้วพิมพ์คำที่ได้ยิน</p>`:`<p class="muted" style="margin:0">ฟังเสียงจากจอครู แล้วพิมพ์คำที่ได้ยิน</p>`}
-      <form id="live-ans-form" class="ansline" novalidate><input id="live-ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="เขียนตรงนี้…" value="${esc(L.ans)}"></form>
-      <button class="btn primary start" id="live-send">ส่งคำตอบ</button>`}</div>`;
-  if(ph==="reveal"){const r=L.reveal||{},me=(r.res||{})[L.pid]||{};return `<div class="lstage">
-    <p class="eyebrow">ข้อ ${num(r.n)+1} / ${num(r.total)}</p>
-    <div class="verdict ${me.ok?"ok":"no"}">${me.ok?"ถูก!":me.answered?"ผิด":"ไม่ได้ตอบ"}</div>
-    ${me.ok?`<div class="gain">+${num(me.pts)}</div>`:""}
-    <div class="bigword">${esc(r.word||"")}</div><p class="muted" style="margin:0">${esc(r.meaning||"")}</p>
-    <p class="pcount">อันดับที่ <b>${num(me.rank)||"-"}</b> · ${L.score.toLocaleString()} คะแนน</p></div>`}
-  if(ph==="end"){const e=L.end||{},me=(e.ranks||{})[L.pid]||{};return `<div class="lstage">
-    <p class="eyebrow">จบเกม</p><h2>คุณได้อันดับที่ ${num(me.rank)||"-"}</h2><p class="pcount">${num(me.score).toLocaleString()} คะแนน จาก ${num(e.count)} คน</p>
-    ${podiumHTML(e.podium||[])}${leave}</div>`}
+    <div class="bigname">${esc(L.name)}</div>
+    <div class="pchips">${L.names.map(x=>`<span>${esc(x)}</span>`).join("")}</div>
+    <p class="muted">${L.count} คนในห้อง · รอคนสร้างห้องกดเริ่มเกม</p>${leave}</div>`;
+  if(ph==="question") return `<div class="lstage">${questionHTML(L.n,L.total,L.score)}</div>`;
+  if(ph==="reveal") return `<div class="lstage">${revealHTML(L.reveal||{},((L.reveal||{}).res||{})[L.pid]||{},L.score)}<p class="muted" style="margin:0">ข้อต่อไปกำลังมา…</p></div>`;
+  if(ph==="end"){const e=L.end||{};return `<div class="lstage">${endHTML(e,(e.ranks||{})[L.pid]||{})}<p class="muted" style="margin:0">รอคนสร้างห้องกดเล่นอีกรอบ</p>${leave}</div>`}
   return "";
 }
-const LIVECFG={lang:"th",stage:0,count:10,dur:20,phoneAudio:true};
+const LIVECFG={lang:"th",stage:0,count:10,dur:20};
 function bindLive(){
   const jf=$("#join-form");
   if(jf){
+    const unlock=()=>{try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}};  // iOS only speaks after a tap
     jf.onsubmit=e=>{e.preventDefault();const pin=($("#live-pin").value||"").replace(/\D/g,""),name=normName($("#live-name").value);
       if(pin.length!==6){$("#join-err").textContent="รหัส PIN ต้องเป็นตัวเลข 6 หลัก";return}
       if(!name){$("#join-err").textContent="ใส่ชื่อก่อนเข้าห้อง";return}
-      try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}
-      S.livePin=pin; playerJoin(pin,name)};
-    $("#host-form").onsubmit=e=>{e.preventDefault();LIVECFG.stage=+$("#lc-stage").value;LIVECFG.count=+$("#lc-count").value;LIVECFG.dur=+$("#lc-dur").value;LIVECFG.phoneAudio=$("#lc-phone").checked;hostCreate({...LIVECFG})};
+      unlock(); S.livePin=pin; playerJoin(pin,name)};
+    $("#host-form").onsubmit=e=>{e.preventDefault();const name=normName($("#lc-name").value);
+      if(!name){$("#host-err").textContent="ใส่ชื่อก่อนสร้างห้อง";return}
+      LIVECFG.stage=+$("#lc-stage").value;LIVECFG.count=+$("#lc-count").value;LIVECFG.dur=+$("#lc-dur").value;
+      unlock(); hostCreate({...LIVECFG,name})};
     document.querySelectorAll("[data-lcfg]").forEach(b=>b.onclick=()=>{LIVECFG.lang=b.dataset.lcfg.split(":")[1];LIVECFG.stage=0;render()});
   }
   $("#live-close")&&($("#live-close").onclick=()=>{liveClose();render()});
   $("#live-start")&&($("#live-start").onclick=hostStartQ);
-  $("#live-next")&&($("#live-next").onclick=()=>{if(L.q+1<L.words.length)hostStartQ();else hostEnd()});
+  $("#live-next")&&($("#live-next").onclick=hostNext);
   $("#live-reveal")&&($("#live-reveal").onclick=hostReveal);
-  $("#live-say")&&($("#live-say").onclick=()=>speak(L.words[L.q],L.cfg.lang,false));
-  $("#live-slow")&&($("#live-slow").onclick=()=>speak(L.words[L.q],L.cfg.lang,true));
-  $("#live-again")&&($("#live-again").onclick=()=>hostCreate(L.cfg));
+  $("#live-again")&&($("#live-again").onclick=hostReplay);
   $("#copy-url")&&($("#copy-url").onclick=()=>{const t=joinURL(L.pin);navigator.clipboard?.writeText(t).then(()=>{$("#copy-url").textContent="คัดลอกแล้ว"},()=>{getSelection().selectAllChildren($("#join-url"))})});
-  const af=$("#live-ans-form"); if(af){af.onsubmit=e=>{e.preventDefault();playerSend()};$("#live-ans").oninput=e=>{L.ans=e.target.value}}
-  $("#live-send")&&($("#live-send").onclick=playerSend);
-  $("#lp-say")&&($("#lp-say").onclick=()=>{speak(L.w,L.wlang,false);$("#live-ans")?.focus()});
-  $("#lp-slow")&&($("#lp-slow").onclick=()=>{speak(L.w,L.wlang,true);$("#live-ans")?.focus()});
+  const af=$("#live-ans-form"); if(af){af.onsubmit=e=>{e.preventDefault();liveAnswer()};$("#live-ans").oninput=e=>{L.ans=e.target.value}}
+  $("#live-send")&&($("#live-send").onclick=liveAnswer);
+  $("#lp-say")&&($("#lp-say").onclick=()=>{speak(curWord(),curLang(),false);$("#live-ans")?.focus()});
+  $("#lp-slow")&&($("#lp-slow").onclick=()=>{speak(curWord(),curLang(),true);$("#live-ans")?.focus()});
 }
 window.addEventListener("pagehide",()=>{if(L)liveClose()});
 
